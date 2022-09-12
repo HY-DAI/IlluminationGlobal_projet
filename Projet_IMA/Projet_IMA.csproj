@@ -71,6 +71,8 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="MyGeometry.cs" />
+    <Compile Include="MyLight.cs" />
     <Compile Include="MyRectangle.cs" />
     <Compile Include="MySphere.cs" />
     <Compile Include="Trigo_InvertCoordSpherique.cs" />

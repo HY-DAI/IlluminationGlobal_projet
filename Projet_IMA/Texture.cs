@@ -16,10 +16,19 @@ namespace Projet_IMA
         // public functions
         // u,v compris entre 0 et 1
 
+        public Texture(Couleur Couleur)
+        {
+            Hauteur = 1;
+            Largeur = 1;
+            C = new Couleur[Largeur, Hauteur];
+            C[0, 0] = Couleur;
+        }
+
         public Couleur LireCouleur(float u, float v)
         {
             return Interpol(Largeur * u, Hauteur * v);
         }
+
 
         public void Bump(float u, float v, out float dhdu, out float dhdv)
         {
@@ -89,7 +98,8 @@ namespace Projet_IMA
 
             return C[x, y];
 
-        /*    int xpu = (x + 1) % Largeur;
+        /* 
+            int xpu = (x + 1) % Largeur;
             int ypu = (y + 1) % Hauteur;
 
             float ccx = cx * cx;
@@ -99,7 +109,8 @@ namespace Projet_IMA
               C[x, y] * (1 - ccx) * (1 - ccy)
             + C[xpu, y] * ccx * (1 - ccy)
             + C[x, ypu] * (1 - ccx) * ccy
-            + C[xpu, ypu] * ccx * ccy;*/
+            + C[xpu, ypu] * ccx * ccy;
+        */
         }
     }    
 }

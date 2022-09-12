@@ -17,13 +17,19 @@ namespace Projet_IMA
             /// 
             //////////////////////////////////////////////////////////////////////////
 
-            Couleur CLampe = new Couleur(1f, 1f, 1f);
-            //Couleur CLampe = new Couleur(1f, 0f, 0f);
-            //Couleur CLampe = new Couleur(0f, 1f, 0f);
-            //Couleur CLampe = new Couleur(0f, 0f, 1f);
+            //Couleur CRouge = new Couleur(1f, 0f, 0f);
+            //Couleur CVert = new Couleur(0f, 1f, 0f);
+            //Couleur CBleu = new Couleur(0f, 0f, 1f);
             //Couleur CLampe = new Couleur(1f, 1f, 0f);
             //Couleur CLampe = new Couleur(0f, 1f, 1f);
             //Couleur CLampe = new Couleur(1f, 0f, 1f);
+            Couleur CBlanc = new Couleur(1f, 1f, 1f);
+            Couleur CLampe = CBlanc;
+
+            V3 lampOrientation = new V3(1, -1, 1);
+            V3 lampLocation = 200*lampOrientation;
+
+            V3 eyeLocation = new V3(3000, 3000, 3000);
 
             int x = 500;
             int y = 150;
@@ -32,41 +38,20 @@ namespace Projet_IMA
             int xoffset = 150;
             int zoffset = 150;
 
-            MySphere whiteSphere = new MySphere(new V3(x, y, z), 50, new Couleur(1f, 1f, 1f));
-            whiteSphere.Couleur *= CLampe;
-            whiteSphere.Draw(0.01f);
+            MySphere whiteSphere = new MySphere(new V3(x, y, z), 100, 0.05f, CBlanc);
 
-            MySphere redSphere = new MySphere(new V3(x-xoffset,y,z-zoffset*1/2), 50, Couleur.Red);
-            redSphere.Couleur *= CLampe;
-            redSphere.Draw(0.01f);
+            Texture texture = new Texture("uvtest.jpg");
 
-            MySphere greenSphere = new MySphere(new V3(x+xoffset,y,z-zoffset*1/2), 50, Couleur.Green);
-            greenSphere.Couleur *= CLampe;
-            greenSphere.Draw(0.01f);
+            // projection orthographique => repère écran
+            int x_ecran = (int)(x3D);
+            int y_ecran = (int)(z3D);
+            BitmapEcran.DrawPixel(x_ecran, y_ecran, c);
 
-            MySphere blueSphere = new MySphere(new V3(x,y,z+zoffset), 50, Couleur.Blue);
-            blueSphere.Couleur *= CLampe;
-            blueSphere.Draw(0.01f);
-
-            MySphere yellowSphere = new MySphere(new V3(x, y, z-zoffset), 50, new Couleur(1f, 1f, 0f));
-            yellowSphere.Couleur *= CLampe;
-            yellowSphere.Draw(0.01f);
-
-            MySphere cyanSphere = new MySphere(new V3(x+xoffset, y, z+zoffset*1/2), 50, new Couleur(0f, 1f, 1f));
-            cyanSphere.Couleur *= CLampe;
-            cyanSphere.Draw(0.01f);
-
-            MySphere magentaSphere = new MySphere(new V3(x-xoffset, y, z+zoffset*1/2), 50, new Couleur(1f, 0f, 1f));
-            magentaSphere.Couleur *= CLampe;
-            magentaSphere.Draw(0.01f);
-
-
-
-
-            // Gestion des textures
-            //Texture T1 = new Texture("brick01.jpg");
-            //Couleur c = T1.LireCouleur(0.1f, 0.1f);
-
+            /*
+                        // Gestion des textures
+                        Texture T1 = new Texture("brick01.jpg");
+                        Couleur c = T1.LireCouleur(0.1f, 0.1f);
+            */
         }
     }
 }

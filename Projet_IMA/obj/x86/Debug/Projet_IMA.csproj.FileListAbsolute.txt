@@ -16,3 +16,12 @@ D:\E5_prgms\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\obj\x86\Debug\Proj
 D:\E5_prgms\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\obj\x86\Debug\Projet_IMA.csproj.CoreCompileInputs.cache
 D:\E5_prgms\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\obj\x86\Debug\Projet_IMA.exe
 D:\E5_prgms\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\obj\x86\Debug\Projet_IMA.pdb
+D:\E5_prgms\Modelisation_Synthese_image\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\bin\Debug\Projet_IMA.exe
+D:\E5_prgms\Modelisation_Synthese_image\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\bin\Debug\Projet_IMA.pdb
+D:\E5_prgms\Modelisation_Synthese_image\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\obj\x86\Debug\Projet_IMA.csproj.AssemblyReference.cache
+D:\E5_prgms\Modelisation_Synthese_image\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\obj\x86\Debug\Projet_IMA.Form1.resources
+D:\E5_prgms\Modelisation_Synthese_image\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\obj\x86\Debug\Projet_IMA.Properties.Resources.resources
+D:\E5_prgms\Modelisation_Synthese_image\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\obj\x86\Debug\Projet_IMA.csproj.GenerateResource.cache
+D:\E5_prgms\Modelisation_Synthese_image\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\obj\x86\Debug\Projet_IMA.csproj.CoreCompileInputs.cache
+D:\E5_prgms\Modelisation_Synthese_image\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\obj\x86\Debug\Projet_IMA.exe
+D:\E5_prgms\Modelisation_Synthese_image\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\obj\x86\Debug\Projet_IMA.pdb
