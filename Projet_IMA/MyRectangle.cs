@@ -11,24 +11,11 @@ namespace Projet_IMA
         public V3 Coté1;
         public V3 Coté2;
 
-        public MyRectangle(V3 origine, V3 cote1, V3 cote2, float pas, Couleur couleur)
+        private Maillage CreerMaillageColore(float pas, Texture texture)
         {
-            Origine = origine;
-            Coté1 = cote1;
-            Coté2 = cote2;
-            Couleur = couleur;
-        }
-        public MyRectangle(V3 origine, V3 cote1, V3 cote2, float pas, Texture texture) 
-        {
-            Origine = origine;
-            Coté1 = cote1;
-            Coté2 = cote2;
-            Texture = texture;
-        }
+            List<V3> points = new List<V3>();
+            List<Couleur> couleurs = new List<Couleur>();
 
-
-        public override void Draw(float pas)
-        {
             for (float u = 0; u < 1; u += pas)  // echantillonage fnt paramétrique
                 for (float v = 0; v < 1; v += pas)
                 {
@@ -36,13 +23,30 @@ namespace Projet_IMA
 
                     // projection orthographique => repère écran
                     int x_ecran = (int)(P3D.x);
-                    int y_ecran = (int)(P3D.y);
-
-                    /*for (int i = 0; i < 100; i++)  // pour ralentir et voir l'animation - devra être retiré*/
-                    Texture = new Texture("uvtest.jpg");
-                    Couleur c = Texture.LireCouleur(u, v);
-                    BitmapEcran.DrawPixel(x_ecran, y_ecran, c);
+                    int y_ecran = (int)(P3D.z);
+                    Couleur couleur = Texture.LireCouleur(u, v);
+                    points.Add(new V3(x_ecran, y_ecran,0));
+                    couleurs.Add(couleur);
                 }
+            return new Maillage(points, couleurs);
         }
+
+        public MyRectangle(V3 origine, V3 cote1, V3 cote2, float pas, Texture texture) 
+        {
+            Origine = origine;
+            Coté1 = cote1;
+            Coté2 = cote2;
+            Texture = texture;
+            Maillage = CreerMaillageColore(pas, texture);
+        }
+        public MyRectangle(V3 origine, V3 cote1, V3 cote2, float pas, Couleur couleur) : this(origine,cote1,cote2,pas, new Texture(couleur))
+        { }
+
+
+        public override V3 GetNormalOfPoint(V3 point)
+        {
+            return new V3(0, 0, 1);
+        }
+
     }
 }

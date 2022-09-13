@@ -10,42 +10,33 @@ namespace Projet_IMA
     {
         public static void Go()
         {
-
             //////////////////////////////////////////////////////////////////////////
             ///
             ///     EX1 : Sphère en 3D et Lumière de lampe
             /// 
             //////////////////////////////////////////////////////////////////////////
 
-            //Couleur CRouge = new Couleur(1f, 0f, 0f);
-            //Couleur CVert = new Couleur(0f, 1f, 0f);
-            //Couleur CBleu = new Couleur(0f, 0f, 1f);
-            //Couleur CLampe = new Couleur(1f, 1f, 0f);
-            //Couleur CLampe = new Couleur(0f, 1f, 1f);
-            //Couleur CLampe = new Couleur(1f, 0f, 1f);
-            Couleur CBlanc = new Couleur(1f, 1f, 1f);
-            Couleur CLampe = CBlanc;
 
-            V3 lampOrientation = new V3(1, -1, 1);
-            V3 lampLocation = 200*lampOrientation;
+            V3 lampOrientation = new V3(-1, 1, -1);
+            //V3 lampOrientation = new V3(-10, 80, -10);
+            //V3 lampOrientation = new V3(-1, 2, -1);
+            lampOrientation.Normalize();
+            MyLight light = new MyLight(lampOrientation, Couleur.White);
 
-            V3 eyeLocation = new V3(3000, 3000, 3000);
+            V3 eyeLocation = new V3(1000, 3000, 500);
 
-            int x = 500;
-            int y = 150;
+            int x = 400;
+            int y = 0;
             int z = 300;
 
             int xoffset = 150;
             int zoffset = 150;
 
-            MySphere whiteSphere = new MySphere(new V3(x, y, z), 100, 0.05f, CBlanc);
-
             Texture texture = new Texture("uvtest.jpg");
-
-            // projection orthographique => repère écran
-            int x_ecran = (int)(x3D);
-            int y_ecran = (int)(z3D);
-            BitmapEcran.DrawPixel(x_ecran, y_ecran, c);
+            MySphere Sphere = new MySphere(new V3(x, y, z), 75, 0.01f, texture);
+            MyGeometry.calcul_diffuse_speculaire(light, Sphere, eyeLocation);
+            MyGeometry.Draw(Sphere, 0.01f);
+ 
 
             /*
                         // Gestion des textures

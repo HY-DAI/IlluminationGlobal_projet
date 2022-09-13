@@ -13,7 +13,11 @@ namespace Projet_IMA
         public static Couleur Red   = new Couleur(1, 0, 0);
         public static Couleur Green = new Couleur(0, 1, 0);
         public static Couleur Blue  = new Couleur(0, 0, 1);
-
+        public static Couleur Yellow = new Couleur(1, 1, 0);
+        public static Couleur Cyan = new Couleur(0, 1, 1);
+        public static Couleur Magenta = new Couleur(1, 0, 1);
+        public static Couleur White = new Couleur(1, 1, 1);
+        public static Couleur Black = new Couleur(0, 0, 0);
 
         // constructeurs
 
@@ -36,6 +40,10 @@ namespace Projet_IMA
             if (R > 1.0) R = 1.0f;
             if (V > 1.0) V = 1.0f;
             if (B > 1.0) B = 1.0f;
+
+            if (R < 0.0) R = 0.0f;
+            if (V < 0.0) V = 0.0f;
+            if (B < 0.0) B = 0.0f;
         }
 
         public void To255(out byte RR, out byte VV, out byte BB)

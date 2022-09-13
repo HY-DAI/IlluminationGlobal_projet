@@ -30,6 +30,13 @@ namespace Projet_IMA
             z /= n;
         }
 
+        public V3 NormalizedDirectionToVec(V3 B)
+        {
+            V3 dir = B - this;
+            dir.Normalize();
+            return dir;
+        }
+
         public V3(V3 t)
         {
             x = t.x;

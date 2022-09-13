@@ -10,7 +10,7 @@ namespace Projet_IMA
         public V3 CentreSphere;
         public float Rayon;
 
-        private void CreerMaillageColore(float pas,Texture texture)
+        private Maillage CreerMaillageColore(float pas,Texture texture)
         {
             List<V3> points = new List<V3>();
             List<Couleur> couleurs = new List<Couleur>();
@@ -26,7 +26,7 @@ namespace Projet_IMA
                     points.Add(new V3(x3D, y3D, z3D));
                     couleurs.Add(couleur);
                 }
-            Maillage Maillage = new Maillage(points, couleurs); 
+            return new Maillage(points, couleurs); 
         }
 
         public MySphere(V3 centreSphere, float rayon, float pas, Texture texture)
@@ -34,16 +34,19 @@ namespace Projet_IMA
             CentreSphere = centreSphere;
             Rayon = rayon;
             Texture = texture;
-            CreerMaillageColore(pas,texture);
+            Maillage = CreerMaillageColore(pas,texture);
         }
 
         public MySphere(V3 centreSphere, float rayon, float pas, Couleur couleur) : this(centreSphere, rayon, pas, new Texture(couleur))
         { }
 
 
-        public override void Draw(float pas)
+        public override V3 GetNormalOfPoint(V3 point)
         {
-
+            V3 normal = point - CentreSphere;
+            normal.Normalize();
+            return normal ;
         }
+
     }
 }

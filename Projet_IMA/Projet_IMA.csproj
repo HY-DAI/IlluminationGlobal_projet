@@ -71,6 +71,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Maillage.cs" />
     <Compile Include="MyGeometry.cs" />
     <Compile Include="MyLight.cs" />
     <Compile Include="MyRectangle.cs" />
