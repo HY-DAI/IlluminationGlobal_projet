@@ -17,32 +17,21 @@ namespace Projet_IMA
             //////////////////////////////////////////////////////////////////////////
 
 
-            V3 lampOrientation = new V3(-1, 1, -1);
-            //V3 lampOrientation = new V3(-10, 80, -10);
-            //V3 lampOrientation = new V3(-1, 2, -1);
-            lampOrientation.Normalize();
-            MyLight light = new MyLight(lampOrientation, Couleur.White);
-
             V3 eyeLocation = new V3(1000, 3000, 500);
 
-            int x = 400;
-            int y = 0;
-            int z = 300;
+            V3 lampOrientation = new V3(-1, 1, -1);
+            lampOrientation.Normalize();
+            MyLight light = new MyDirectionalLight(Couleur.White, 0.45f,lampOrientation);
 
-            int xoffset = 150;
-            int zoffset = 150;
+            Texture colormap = new Texture("uvtest.jpg");
+            Texture bumpmap = new Texture("bump38.jpg");
+            MySphere Sphere = new MySphere(new V3(400, 0, 300), 75, 0.01f, new MyMaterial(colormap, bumpmap, 0.9f));
+            MySphere Sphere2 = new MySphere(new V3(200, 0, 300), 75, 0.01f, new MyMaterial(Couleur.Cyan, bumpmap, 0.8f));
 
-            Texture texture = new Texture("uvtest.jpg");
-            MySphere Sphere = new MySphere(new V3(x, y, z), 75, 0.01f, texture);
-            MyGeometry.calcul_diffuse_speculaire(light, Sphere, eyeLocation);
-            MyGeometry.Draw(Sphere, 0.01f);
- 
-
-            /*
-                        // Gestion des textures
-                        Texture T1 = new Texture("brick01.jpg");
-                        Couleur c = T1.LireCouleur(0.1f, 0.1f);
-            */
+            MyRF.calcul_diffuse_speculaire(light, Sphere, eyeLocation);
+            MyRF.Draw(Sphere, 0.01f);
+            MyRF.calcul_diffuse_speculaire(light, Sphere2, eyeLocation);
+            MyRF.Draw(Sphere2, 0.01f);
         }
     }
 }

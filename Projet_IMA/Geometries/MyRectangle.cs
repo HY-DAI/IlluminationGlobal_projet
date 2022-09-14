@@ -11,7 +11,7 @@ namespace Projet_IMA
         public V3 Coté1;
         public V3 Coté2;
 
-        private Maillage CreerMaillageColore(float pas, Texture texture)
+        private MyMaillage CreerMaillageColore(float pas)
         {
             List<V3> points = new List<V3>();
             List<Couleur> couleurs = new List<Couleur>();
@@ -24,22 +24,28 @@ namespace Projet_IMA
                     // projection orthographique => repère écran
                     int x_ecran = (int)(P3D.x);
                     int y_ecran = (int)(P3D.z);
-                    Couleur couleur = Texture.LireCouleur(u, v);
+                    Couleur couleur = Material.ColorMap.LireCouleur(u, v);
                     points.Add(new V3(x_ecran, y_ecran,0));
                     couleurs.Add(couleur);
                 }
-            return new Maillage(points, couleurs);
+            return new MyMaillage(points, couleurs);
         }
 
-        public MyRectangle(V3 origine, V3 cote1, V3 cote2, float pas, Texture texture) 
+        public MyRectangle(V3 origine, V3 cote1, V3 cote2, float pas, MyMaterial material) 
         {
             Origine = origine;
             Coté1 = cote1;
             Coté2 = cote2;
-            Texture = texture;
-            Maillage = CreerMaillageColore(pas, texture);
+            Material = material;
+            Maillage = CreerMaillageColore(pas);
         }
-        public MyRectangle(V3 origine, V3 cote1, V3 cote2, float pas, Couleur couleur) : this(origine,cote1,cote2,pas, new Texture(couleur))
+
+        public MyRectangle(V3 origine, V3 cote1, V3 cote2, float pas, Texture texture) :
+            this(origine, cote1, cote2, pas, new MyMaterial(texture))
+        { }
+
+        public MyRectangle(V3 origine, V3 cote1, V3 cote2, float pas, Couleur couleur) : 
+            this(origine,cote1,cote2,pas, new Texture(couleur))
         { }
 
 
