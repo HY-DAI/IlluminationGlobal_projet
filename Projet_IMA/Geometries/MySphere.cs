@@ -13,7 +13,7 @@ namespace Projet_IMA
         private MyMaillage CreerMaillageColore(float pas)
         {
             List<V3> points = new List<V3>();
-            List<V3> normals = new List<V3>();
+            List<V3> normals = new List<V3>(); 
             List<Couleur> couleurs = new List<Couleur>();
 
             for (float u = 0; u < 2 * IMA.PI; u += pas)  // echantillonage fnt paramétrique
@@ -25,17 +25,21 @@ namespace Projet_IMA
                     float z3D = Rayon * IMA.Sinf(v) + CentreSphere.z;
                     float unormalized = u / (2 * IMA.PI);
                     float vnormalized = (v + IMA.PI / 2) / (IMA.PI);
-                    float dhdu, dhdv;
-                    V3 dmdu, dmdv;
-                    Material.BumpMap.Bump(u, v, out dhdu, out dhdv);
-                    dmdu = new V3(-IMA.Sinf(u) * IMA.Sinf(v), IMA.Cosf(u) * IMA.Sinf(v), 0);
-                    dmdv = new V3(IMA.Cosf(u) * IMA.Cosf(v), IMA.Sinf(u) * IMA.Cosf(v), -IMA.Sinf(v));
                     V3 point = new V3(x3D, y3D, z3D);
                     Couleur couleur = Material.ColorMap.LireCouleur(unormalized, vnormalized);
-                    V3 additionalBump = (dhdu * dmdv + dhdv * dmdu)*Material.BumpIntensity;
                     points.Add(point);
                     couleurs.Add(couleur);
-                    normals.Add(CentreSphere.NormalizedDirectionToVec(point)+additionalBump);
+
+
+                    float dhdu, dhdv;
+                    V3 dmdu, dmdv;
+                    Material.BumpMap.Bump(unormalized, vnormalized, out dhdu, out dhdv);
+                    dmdu = -Rayon * (new V3(IMA.Sinf(u) * IMA.Cosf(v), -IMA.Cosf(u) * IMA.Cosf(v), 0));
+                    dmdv = -Rayon * (new V3(IMA.Cosf(u) * IMA.Sinf(v), IMA.Sinf(u) * IMA.Sinf(v), -IMA.Cosf(v)));
+                    V3 Nuv = (dmdu ^ dmdv) / (dmdu ^ dmdv).Norm();
+                    V3 T2 = dhdu * (Nuv ^ dmdv);
+                    V3 T3 = dhdv * (dmdu ^ Nuv);
+                    normals.Add(Nuv + (T2 + T3) * Material.BumpIntensity);
                 }
             return new MyMaillage(points, couleurs, normals); 
         }

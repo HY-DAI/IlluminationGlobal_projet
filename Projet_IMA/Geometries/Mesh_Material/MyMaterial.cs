@@ -10,13 +10,18 @@ namespace Projet_IMA
         public Texture ColorMap;
         public Texture BumpMap;
         public float BumpIntensity;
+        public int SpecularPower;
 
-        public MyMaterial(Texture colormap, Texture bumpmap, float bumpintensity)
+        public MyMaterial(Texture colormap, Texture bumpmap, float bumpintensity, int specularpower)
         {
             ColorMap = colormap;
             BumpMap = bumpmap;
             BumpIntensity = bumpintensity;
+            SpecularPower = specularpower;
         }
+        public MyMaterial(Texture colormap, Texture bumpmap, float bumpintensity) :
+            this(colormap, bumpmap, bumpintensity,50)
+        { }
 
         public MyMaterial(Texture colormap, Texture bumpmap) :
             this(colormap,bumpmap,2f)

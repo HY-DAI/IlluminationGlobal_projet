@@ -11,7 +11,7 @@ namespace Projet_IMA
 
         public static void calcul_diffuse_speculaire(MyLight light, MyGeometry geometry, V3 eyePosition)
         {
-            // Normalized vectors
+            // Normalized vectors : L, R, N, D 
             V3 lightDirection = light.LightDirection;
             V3 reflectedLightDirection; 
             V3 normal;
@@ -20,14 +20,11 @@ namespace Projet_IMA
             Couleur CAmb = light.Couleur * light.LightIntensity;
             Couleur CDiffuse;
             Couleur CSpeculaire;
-            // local point and its color
-            V3 point;
-            Couleur couleur;
 
             for (int i = 0; i < geometry.Maillage.Points.Count; i++)
             {
-                point = geometry.Maillage.Points[i];
-                couleur = geometry.Maillage.Couleurs[i];
+                V3 point = geometry.Maillage.Points[i];
+                Couleur couleur = geometry.Maillage.Couleurs[i];
 
                 // normal and then normalwithbumps :
                 // normal = geometry.GetNormalOfPoint(point);
@@ -41,7 +38,7 @@ namespace Projet_IMA
                     reflectedLightDirection = lightDirection + 2 * normal * V3.prod_scal(normal, -lightDirection);
                 }
                 CDiffuse = couleur * light.Couleur * V3.prod_scal(normal, -lightDirection);
-                CSpeculaire = light.Couleur * (float)Math.Pow(V3.prod_scal(reflectedLightDirection, point2eyesDirection), geometry.SpecularPower);
+                CSpeculaire = light.Couleur * (float)Math.Pow(V3.prod_scal(reflectedLightDirection, point2eyesDirection), geometry.Material.SpecularPower);
                 CDiffuse.check();
                 CSpeculaire.check();
                 geometry.Maillage.Couleurs[i] = couleur * CAmb + CDiffuse + CSpeculaire;

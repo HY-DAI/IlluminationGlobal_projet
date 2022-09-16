@@ -11,7 +11,6 @@ namespace Projet_IMA
         //public Couleur Couleur;
         //public Texture Texture;
         public MyMaterial Material;
-        public int SpecularPower = 50;
 /*
         public MyGeometry(Maillage maillage, MyMaterial material)
         {

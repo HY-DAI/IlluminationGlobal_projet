@@ -16,6 +16,24 @@ namespace Projet_IMA
         // public functions
         // u,v compris entre 0 et 1
 
+        public static Texture BrickMap = new Texture("brick01.jpg");
+        public static Texture GoldMap = new Texture("gold.jpg");
+        public static Texture FibreMap = new Texture("fibre.jpg");
+        public static Texture LeadMap = new Texture("lead.jpg");
+        public static Texture RockMap = new Texture("rock.jpg");
+        public static Texture StoneMap = new Texture("stone2.jpg");
+        public static Texture TestMap = new Texture("test.jpg");
+        public static Texture UVTestMap = new Texture("uvtest.jpg");
+        public static Texture WoodMap = new Texture("wood.jpg");
+
+        public static Texture BumpMap = new Texture("bump.jpg");
+        public static Texture BumpMap1 = new Texture("bump1.jpg");
+        public static Texture BumpMap2 = new Texture("bump20.jpg");
+        public static Texture BumpMap3 = new Texture("bump38.jpg");
+        public static Texture GoldBumpMap = new Texture("gold_Bump.jpg");
+        public static Texture LeadBumpMap = new Texture("lead_bump.jpg");
+
+
         public Texture(Couleur Couleur)
         {
             Hauteur = 1;
