@@ -11,6 +11,25 @@ namespace Projet_IMA
         public V3 Coté1;
         public V3 Coté2;
 
+        public MyRectangle(V3 origine, V3 cote1, V3 cote2, float pas, MyMaterial material) 
+        {
+            Origine = origine;
+            Coté1 = cote1;
+            Coté2 = cote2;
+            Material = material;
+            Maillage = CreerMaillageColore(pas);
+            MyRF.Calcul_normals_with_bump(this, out Maillage.Normals);
+        }
+
+        public MyRectangle(V3 origine, V3 cote1, V3 cote2, float pas, Texture texture) :
+            this(origine, cote1, cote2, pas, new MyMaterial(texture))
+        { }
+
+        public MyRectangle(V3 origine, V3 cote1, V3 cote2, float pas, Couleur couleur) : 
+            this(origine,cote1,cote2,pas, new Texture(couleur))
+        { }
+
+
         private MyMaillage CreerMaillageColore(float pas)
         {
             List<V3> points = new List<V3>();
@@ -25,34 +44,25 @@ namespace Projet_IMA
                     int x_ecran = (int)(P3D.x);
                     int y_ecran = (int)(P3D.z);
                     Couleur couleur = Material.ColorMap.LireCouleur(u, v);
-                    points.Add(new V3(x_ecran, y_ecran,0));
+                    points.Add(new V3(x_ecran, y_ecran, 0));
                     couleurs.Add(couleur);
                 }
             return new MyMaillage(points, couleurs);
         }
 
-        public MyRectangle(V3 origine, V3 cote1, V3 cote2, float pas, MyMaterial material) 
-        {
-            Origine = origine;
-            Coté1 = cote1;
-            Coté2 = cote2;
-            Material = material;
-            Maillage = CreerMaillageColore(pas);
-        }
-
-        public MyRectangle(V3 origine, V3 cote1, V3 cote2, float pas, Texture texture) :
-            this(origine, cote1, cote2, pas, new MyMaterial(texture))
-        { }
-
-        public MyRectangle(V3 origine, V3 cote1, V3 cote2, float pas, Couleur couleur) : 
-            this(origine,cote1,cote2,pas, new Texture(couleur))
-        { }
-
 
         public override V3 GetNormalOfPoint(V3 point)
         {
-            return new V3(0, 0, 1);
+            return (Coté1^Coté2)/ (Coté1^Coté2).Norm();
         }
 
+        public override void CalculateDifferentialUV(V3 point, out float u, out float v, out V3 dmdu, out V3 dmdv)
+        {
+            V3 vec = point - Origine;
+            u = V3.prod_scal(vec,Coté1);
+            v = V3.prod_scal(vec, Coté2);
+            dmdu = Coté1;
+            dmdv = Coté2;
+        }
     }
 }

@@ -11,16 +11,17 @@ namespace Projet_IMA
         //public Couleur Couleur;
         //public Texture Texture;
         public MyMaterial Material;
-/*
-        public MyGeometry(Maillage maillage, MyMaterial material)
+
+        public static List<MyGeometry> GeometriesList = new List<MyGeometry>();
+
+        public MyGeometry()
         {
-            Maillage = maillage;
-            Material = material;
+            MyGeometry.GeometriesList.Add(this);
         }
-*/
+
 
         public abstract V3 GetNormalOfPoint(V3 point);
 
-
+        public abstract void CalculateDifferentialUV(V3 point, out float u, out float v, out V3 dmdu, out V3 dmdv);
     }
 }

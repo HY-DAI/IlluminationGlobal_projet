@@ -10,10 +10,27 @@ namespace Projet_IMA
         public V3 CentreSphere;
         public float Rayon;
 
+
+        public MySphere(V3 centreSphere, float rayon, float pas, MyMaterial material)
+        {
+            CentreSphere = centreSphere;
+            Rayon = rayon;
+            Material = material;
+            Maillage = CreerMaillageColore(pas);
+            MyRF.Calcul_normals_with_bump(this, out Maillage.Normals);
+        }
+
+        public MySphere(V3 centreSphere, float rayon, float pas, Texture texture) :
+            this(centreSphere, rayon, pas, new MyMaterial(texture))
+        { }
+
+        public MySphere(V3 centreSphere, float rayon, float pas, Couleur couleur) : 
+            this(centreSphere, rayon, pas, new Texture(couleur))
+        { }
+
         private MyMaillage CreerMaillageColore(float pas)
         {
             List<V3> points = new List<V3>();
-            List<V3> normals = new List<V3>(); 
             List<Couleur> couleurs = new List<Couleur>();
 
             for (float u = 0; u < 2 * IMA.PI; u += pas)  // echantillonage fnt paramétrique
@@ -29,45 +46,26 @@ namespace Projet_IMA
                     Couleur couleur = Material.ColorMap.LireCouleur(unormalized, vnormalized);
                     points.Add(point);
                     couleurs.Add(couleur);
-
-
-                    float dhdu, dhdv;
-                    V3 dmdu, dmdv;
-                    Material.BumpMap.Bump(unormalized, vnormalized, out dhdu, out dhdv);
-                    dmdu = -Rayon * (new V3(IMA.Sinf(u) * IMA.Cosf(v), -IMA.Cosf(u) * IMA.Cosf(v), 0));
-                    dmdv = -Rayon * (new V3(IMA.Cosf(u) * IMA.Sinf(v), IMA.Sinf(u) * IMA.Sinf(v), -IMA.Cosf(v)));
-                    V3 Nuv = (dmdu ^ dmdv) / (dmdu ^ dmdv).Norm();
-                    V3 T2 = dhdu * (Nuv ^ dmdv);
-                    V3 T3 = dhdv * (dmdu ^ Nuv);
-                    normals.Add(Nuv + (T2 + T3) * Material.BumpIntensity);
                 }
-            return new MyMaillage(points, couleurs, normals); 
+            return new MyMaillage(points, couleurs);
         }
-
-
-
-        public MySphere(V3 centreSphere, float rayon, float pas, MyMaterial material)
-        {
-            CentreSphere = centreSphere;
-            Rayon = rayon;
-            Material = material;
-            Maillage = CreerMaillageColore(pas);
-        }
-
-        public MySphere(V3 centreSphere, float rayon, float pas, Texture texture) :
-            this(centreSphere, rayon, pas, new MyMaterial(texture))
-        { }
-
-        public MySphere(V3 centreSphere, float rayon, float pas, Couleur couleur) : 
-            this(centreSphere, rayon, pas, new Texture(couleur))
-        { }
-
 
         public override V3 GetNormalOfPoint(V3 point)
         {
             V3 normal = point - CentreSphere;
             normal.Normalize();
             return normal ;
+        }
+
+        public override void CalculateDifferentialUV(V3 point,out float u, out float v, out V3 dmdu, out V3 dmdv)
+        {
+            IMA.Invert_Coord_Spherique(point, CentreSphere, Rayon, out u, out v);
+            dmdu = -Rayon * (new V3(IMA.Sinf(u) * IMA.Cosf(v), -IMA.Cosf(u) * IMA.Cosf(v), 0));
+            dmdv = -Rayon * (new V3(IMA.Cosf(u) * IMA.Sinf(v), IMA.Sinf(u) * IMA.Sinf(v), -IMA.Cosf(v)));
+
+            // normalize u and v
+            u = u / (2 * IMA.PI);
+            v = (v + IMA.PI / 2) / (IMA.PI);
         }
 
     }

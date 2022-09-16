@@ -42,13 +42,6 @@ namespace Projet_IMA
             }
         }
 
-        static public void Differential_Coord_Spherique(V3 P3D, V3 sphereCenter, float r, out V3 dmdu, out V3 dmdv)
-        {
-            float u, v;
-            Invert_Coord_Spherique(P3D, sphereCenter, r, out u, out v);
-            dmdu = new V3(-IMA.Sinf(u) * IMA.Sinf(v), IMA.Cosf(u) * IMA.Sinf(v), 0);
-            dmdv = new V3(IMA.Cosf(u) * IMA.Cosf(v), IMA.Sinf(u) * IMA.Cosf(v), -IMA.Sinf(v));
-        }
 
 	}
 }

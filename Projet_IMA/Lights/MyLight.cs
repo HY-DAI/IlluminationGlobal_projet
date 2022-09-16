@@ -11,12 +11,15 @@ namespace Projet_IMA
         public float LightIntensity;
         public V3 LightDirection;
 
+        public static List<MyLight> LightsList = new List<MyLight>();
 
         public MyLight(Couleur couleur, float intensity, V3 lightdir)
         {
-            Couleur = couleur;
+            Couleur = couleur*intensity;
             LightIntensity = intensity;
             LightDirection = lightdir;
+            check();
+            MyLight.LightsList.Add(this);
         }
 
         public MyLight(Couleur couleur, float intensity) :
@@ -24,6 +27,17 @@ namespace Projet_IMA
         { }
 
         public MyLight(Couleur couleur) : this(couleur,1f)  { }
+
+        public void setIntensity(float intensity)
+        {
+            Couleur /= LightIntensity;
+            Couleur *= intensity;
+        }
+
+        private void check()
+        {
+            LightDirection.Normalize();
+        }
     }
 
 }
