@@ -11,56 +11,67 @@ namespace Projet_IMA
         public static void Go()
         {
 
-            //////////////////////////////////////////////////////////////////////////
-            ///  Lumières
-            //////////////////////////////////////////////////////////////////////////
+            //// sachant que : this.pictureBox1.Size = new System.Drawing.Size(1275, 700);
+            int largeurEcran = 960;
+            int hauteurEcran = 570;
 
-            MyLight Light1 = new MyDirectionalLight(Couleur.White, 0.45f, new V3(-1, 1, -1));
-            //MyLight Light2 = new MyDirectionalLight(Couleur.White, 0.25f, new V3(1, -1, 1));
-
-            /*
-                        MyLight Light1 = new MyDirectionalLight(Couleur.Yellow, 0.35f, new V3(-1, 1, -1));
-                        MyLight Light2 = new MyDirectionalLight(Couleur.Cyan, 0.05f, new V3(1, 0f, -1));
-                        MyLight Light3 = new MyDirectionalLight(Couleur.Magenta, 0.25f, new V3(1, -1f, 1));
-            */
+            V3 eyeLocation = new V3(largeurEcran / 2, -largeurEcran, hauteurEcran / 2);
 
             //////////////////////////////////////////////////////////////////////////
             ///  Formes
             //////////////////////////////////////////////////////////////////////////
 
-            //// sachant que : this.pictureBox1.Size = new System.Drawing.Size(1275, 700);
-            int largeurEcran = 960;
-            int hauteurEcran = 570;
 
+            int scalex = largeurEcran;
+            int scaley = largeurEcran;
+            int scalez = hauteurEcran;
+
+            MyParallelogram ceiling = new MyParallelogram(new V3(0, 0, scalez), new V3(scalex, 0, 0), new V3(0, scaley, 0), 0.01f, new MyMaterial(Texture.WoodMap, Texture.FibreMap));
+            MyParallelogram floor = new MyParallelogram(new V3(0, 0, 0), new V3(scalex, 0, 0), new V3(0, scaley, 0), 0.01f, new MyMaterial(Texture.LeadMap, Texture.LeadBumpMap, 0.5f));
+            MyParallelogram wall_left = new MyParallelogram(new V3(0, 0, 0), new V3(0, 0, scalez), new V3(0, scaley, 0), 0.01f, new MyMaterial(new Texture(Couleur.Cyan), Texture.BumpMap1));
+            MyParallelogram wall_front = new MyParallelogram(new V3(0, scaley, 0), new V3(scalex, 0, 0), new V3(0, 0, scalez), 0.01f, new MyMaterial(new Texture(Couleur.Yellow), Texture.BumpMap2));
+            MyParallelogram wall_right = new MyParallelogram(new V3(scalex, 0, 0), new V3(0, 0, scalez), new V3(0, scaley, 0), 0.01f, new MyMaterial(new Texture(Couleur.Magenta), Texture.BumpMap3));
+
+
+            //// Un peu de mise en scene de spheres...
 
             int radius = 130;
             float step = 0.007f;
             V3 sphereCenter = new V3(largeurEcran/3-radius, radius*1f, hauteurEcran/2);
             V3 offset = new V3(largeurEcran/3, 0, 0);
-            MySphere Sphere1 = new MySphere(sphereCenter, radius, step, new MyMaterial(Texture.TestMap, Texture.BumpMap2, 0.005f, 200));
-            MySphere Sphere2 = new MySphere(sphereCenter+offset, radius, step, new MyMaterial(Texture.GoldMap, Texture.GoldBumpMap, 0.0025f,50));
-            MySphere Sphere3 = new MySphere(sphereCenter+2*offset, radius, step, new MyMaterial(Texture.LeadMap, Texture.LeadBumpMap, 0.0025f,50));
+            MySphere Sphere1 = new MySphere(sphereCenter, radius, step, new MyMaterial(Texture.TestMap, Texture.BumpMap2, 5f, 200));
+            MySphere Sphere2 = new MySphere(sphereCenter+offset, radius, step, new MyMaterial(Texture.GoldMap, Texture.GoldBumpMap, 2.5f,50));
+            MySphere Sphere3 = new MySphere(sphereCenter+2*offset, radius, step, new MyMaterial(Texture.LeadMap, Texture.LeadBumpMap, 2.5f,50));
+
+            MySphere Sphere4 = new MySphere(sphereCenter + new V3(radius, -radius*2,radius/3), radius/2, step, new MyMaterial(Texture.StoneMap, Texture.BumpMap1, 2.5f, 50));
 
 
-            int scalex = largeurEcran; // 960;
-            int scaley = largeurEcran;
-            int scalez = hauteurEcran; // 570;
+            //////////////////////////////////////////////////////////////////////////
+            ///  Lumières
+            //////////////////////////////////////////////////////////////////////////
 
-            MyParallelogram Plafond = new MyParallelogram(new V3(0, 0, scalez), new V3(scalex, 0, 0), new V3(0, scaley, 0), 0.01f, new MyMaterial(Texture.WoodMap, Texture.FibreMap, 0.001f));
-            MyParallelogram Sol = new MyParallelogram(new V3(0, 0, 0), new V3(scalex, 0, 0), new V3(0, scaley, 0), 0.01f, Texture.RockMap);
-            MyParallelogram Mur1 = new MyParallelogram(new V3(0, 0, 0), new V3(0, 0, scalez), new V3(0, scaley, 0), 0.01f, Couleur.Cyan);
-            MyParallelogram Mur2 = new MyParallelogram(new V3(0, scaley, 0),  new V3(scalex, 0, 0), new V3(0, 0, scalez), 0.01f, Couleur.Yellow);
-            MyParallelogram Mur3 = new MyParallelogram(new V3(scalex, 0, 0), new V3(0, 0, scalez), new V3(0, scaley, 0), 0.01f, Couleur.Magenta);
+            MyLight PLight1 = new MyPointLight(eyeLocation+offset, new V3(-1, 1, -1), Couleur.White, 0.35f);
+            MyLight PLight2 = new MyPointLight(eyeLocation-offset, new V3(1, 0f, -1), Couleur.Cyan, 0.05f);
 
-
+/*
+            MyLight Light1 = new MyDirectionalLight(new V3(-1, 1, -1), Couleur.Yellow, 0.35f);
+            MyLight Light2 = new MyDirectionalLight(new V3(1, 0f, -1), Couleur.Cyan, 0.05f);
+            MyLight Light3 = new MyDirectionalLight(new V3(1, -1f, 1), Couleur.Magenta, 0.25f);
+*/
 
             //////////////////////////////////////////////////////////////////////////
             ///  Dessin sur l'interface
             //////////////////////////////////////////////////////////////////////////
 
-            //V3 eyeLocation = new V3(largeurEcran / 2, -largeurEcran, hauteurEcran / 2);
-            V3 eyeLocation = new V3(scalex/2, -scalex, scalez/2); 
+            //V3 eyeLocation = new V3(scalex / 2, -scalex, scalez / 2);
             MyRF.Draw(MyLight.LightsList, MyGeometry.GeometriesList, eyeLocation);
+        }
+
+        private class MyPointLight : MyLight
+        {
+            public MyPointLight(V3 lightpos, V3 lightdir, Couleur couleur, float intensity) : base(lightpos, lightdir, couleur, intensity)
+            {
+            }
         }
     }
 }

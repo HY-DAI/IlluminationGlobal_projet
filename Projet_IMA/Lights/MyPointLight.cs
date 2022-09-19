@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Projet_IMA
+namespace Projet_IMA.Lights
 {
-    class MyDirectionalLight : MyLight
+    class MyPointLight : MyLight
     {
-
 
         //---------------------------------------
         // Constructeurs :
         //---------------------------------------
 
-        public MyDirectionalLight(V3 lightdir, Couleur couleur, float intensity) :
-            base(lightdir, couleur, intensity)
-        {  }
+        public MyPointLight(V3 lightpos, V3 lightdir, Couleur couleur, float intensity) :
+            base(lightpos, lightdir, couleur, intensity)
+        { }
+    
     }
 }

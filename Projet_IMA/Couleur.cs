@@ -19,7 +19,31 @@ namespace Projet_IMA
         public static Couleur White = new Couleur(1, 1, 1);
         public static Couleur Black = new Couleur(0, 0, 0);
 
-        // constructeurs
+       
+
+        //---------------------------------------
+        // Constructeurs :
+        //---------------------------------------
+
+        public Couleur(float R, float V, float B)
+        {
+            this.R = R;
+            this.V = V;
+            this.B = B;
+        }
+
+        public Couleur(Couleur c)
+        {
+            this.R = c.R;
+            this.V = c.V;
+            this.B = c.B;
+        }
+
+
+
+        //---------------------------------------
+        // méthodes
+        //---------------------------------------
 
         public void From255(byte RR, byte VV, byte BB)
         {
@@ -28,11 +52,11 @@ namespace Projet_IMA
             B = (float)(BB / 255.0);
         }
 
-        static public  void Transpose(ref Couleur cc, System.Drawing.Color c)
+        static public void Transpose(ref Couleur cc, System.Drawing.Color c)
         {
-            cc.R = (float) (c.R / 255.0);
-            cc.V = (float) (c.G / 255.0);
-            cc.B = (float) (c.B / 255.0);
+            cc.R = (float)(c.R / 255.0);
+            cc.V = (float)(c.G / 255.0);
+            cc.B = (float)(c.B / 255.0);
         }
 
         public void check()
@@ -61,28 +85,17 @@ namespace Projet_IMA
             return Color.FromArgb(RR, VV, BB);
         }
 
-        public Couleur(float R, float V, float B)
-        {
-            this.R = R;
-            this.V = V;
-            this.B = B;
-        }
-
-        public Couleur(Couleur c)
-        {
-            this.R = c.R;
-            this.V = c.V;
-            this.B = c.B;
-        }
-
-        // méthodes
 
         public float GreyLevel()						// utile pour le Bump Map
         {
             return (R + B + V) / 3.0f;
         }
 
+
+        //---------------------------------------
         // opérateurs surchargés
+        //---------------------------------------
+        
 
         public static Couleur operator +(Couleur a, Couleur b)
         {

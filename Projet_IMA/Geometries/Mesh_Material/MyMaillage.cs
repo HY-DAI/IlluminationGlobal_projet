@@ -11,6 +11,11 @@ namespace Projet_IMA
         public List<V3> Normals;
         public List<Couleur> Couleurs;
 
+
+        //---------------------------------------
+        // Constructeurs :
+        //---------------------------------------
+
         public MyMaillage(List<V3> points, List<Couleur> couleurs, List<V3> normals)
         {
             Points = points;

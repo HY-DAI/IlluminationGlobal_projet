@@ -8,25 +8,7 @@ namespace Projet_IMA
     class MyRF // my rendering functions
     {
 
-        public static void Calcul_normals_with_bump(MyGeometry geometry, out List<V3> normals)
-        {
-            List<V3> vnormals = new List<V3>();
-            for (int i = 0; i < geometry.Maillage.Points.Count; i++)
-            {
-                V3 point = geometry.Maillage.Points[i];
-                float unormalized, vnormalized;
-                float dhdu, dhdv;
-                V3 dmdu, dmdv;
-                geometry.CalculateDifferentialUV(point,out unormalized, out vnormalized, out dmdu, out dmdv);
-                geometry.Material.BumpMap.Bump(unormalized, vnormalized, out dhdu, out dhdv);
-                V3 Nuv = (dmdu ^ dmdv) / (dmdu ^ dmdv).Norm();
-                V3 T2 = dhdu * (Nuv ^ dmdv);
-                V3 T3 = dhdv * (dmdu ^ Nuv);
-                vnormals.Add(Nuv + (T2 + T3) * geometry.Material.BumpIntensity);
-            }
-            normals = vnormals;
-        }
-            
+  /*
         public static void Calcul_diffuse_speculaire(List<MyLight> lightsList, MyGeometry geometry, V3 eyePosition, out List<V3> points, out List<Couleur> couleurs)
         {
             points = geometry.Maillage.Points;
@@ -72,61 +54,7 @@ namespace Projet_IMA
             }
             couleurs = vcouleurs;
         }
-
-
-        public static void Calcul_diffuse_speculaire(List<MyLight> lightsList, MyGeometry geometry, V3 eyePosition, V3 point, out Couleur couleur)
-        {
-            // Normalized vectors : L, R, N, D 
-            V3 lightDirection;
-            V3 reflectedLightDirection;
-            V3 normal;
-            V3 point2eyesDirection;
-            // Colors that will be added together
-            Couleur CAmb;
-            Couleur CDiffuse;
-            Couleur CSpeculaire;
-
-            float u, v;
-            V3 dmdu, dmdv;
-            geometry.CalculateDifferentialUV(point, out u, out v, out dmdu, out dmdv);
-            couleur = geometry.Material.ColorMap.LireCouleur(u, v); ;
-            /*
-                        // projection orthographique => repère écran
-                        int x_ecran = (int)(point.x);
-                        int y_ecran = (int)(point.z);
-                        BitmapEcran.DrawPixel(x_ecran, y_ecran, couleur);
-            */
-            Couleur Cinterm = Couleur.Black;
-            foreach (MyLight light in lightsList)
-            {
-                CAmb = light.Couleur;
-                lightDirection = light.LightDirection;
-                point2eyesDirection = point.NormalizedDirectionToVec(eyePosition);
-
-                // normal and then normalwithbumps :
-                float dhdu, dhdv;
-                geometry.Material.BumpMap.Bump(u, v, out dhdu, out dhdv);
-                V3 Nuv = (dmdu ^ dmdv) / (dmdu ^ dmdv).Norm();
-                V3 T2 = dhdu * (Nuv ^ dmdv);
-                V3 T3 = dhdv * (dmdu ^ Nuv);
-                normal = Nuv + (T2 + T3) * geometry.Material.BumpIntensity;
-
-
-                // to set R correctly, check if the light actually hits the surface
-                reflectedLightDirection = lightDirection;
-                if (V3.prod_scal(normal, -lightDirection) > 0)
-                {
-                    reflectedLightDirection = lightDirection + 2 * normal * V3.prod_scal(normal, -lightDirection);
-                }
-                CDiffuse = couleur * CAmb * V3.prod_scal(normal, -lightDirection);
-                CSpeculaire = couleur * CAmb * (float)Math.Pow(V3.prod_scal(reflectedLightDirection, point2eyesDirection), geometry.Material.SpecularPower);
-                CDiffuse.check();
-                CSpeculaire.check();
-                Cinterm += couleur * CAmb + CDiffuse + CSpeculaire;
-            }
-            couleur = Cinterm;
-        }
-
+*/
 
         public static void DrawGeometry(List<V3> points, List<Couleur> couleurs)
         {
@@ -155,42 +83,26 @@ namespace Projet_IMA
             {
                 for (int pz = 0; pz < nbpz; pz++)
                 {
-//                    bool interactionExists = false;
                     V3 RayonDirection = eyePosition.NormalizedDirectionToVec(new V3(px, 0, pz));
                     NearestIntersection = eyePosition + 7000 * RayonDirection; //val arbi grande
                     NearestCouleur = Couleur.White * 0.1f;
                     foreach (MyGeometry geometry in geometriesList)
                     {
-
                         if (geometry.RaycastingIntersection(eyePosition, RayonDirection, out u, out v))
                         {
                             V3 P3D = geometry.get3DPoint(u, v);
                             if ((P3D - eyePosition).Norm() < (NearestIntersection - eyePosition).Norm())
                             {
                                 NearestIntersection = P3D;
-                                Calcul_diffuse_speculaire(lightsList, geometry, eyePosition, P3D, out NearestCouleur);
+                                geometry.Calcul_diffuse_speculaire_bumps(lightsList, eyePosition, P3D, out NearestCouleur);
+                                foreach (MyLight light in lightsList)
+                                {
+                                    if (geometry.RaycastingIntersection(light.LightPosition, RayonDirection, out u, out v)) { }
+                                }
                             }
                         }
-
-
-                        /*   
-                           geometry.RaycastingIntersection(eyePosition, RayonDirection, out u, out v);
-                           V3 P3D = geometry.get3DPoint(u, v);
-                           if ((P3D - eyePosition).Norm() < (NearestIntersection - eyePosition).Norm())
-                           {
-                               NearestIntersection = P3D;
-                               Calcul_diffuse_speculaire(lightsList, geometry, eyePosition, P3D, out NearestCouleur);
-                           }
-                        */
-
                     }
-/*
-                    // projection orthographique => repère écran
-                    int x_ecran = (int)(NearestIntersection.x);
-                    int y_ecran = (int)(NearestIntersection.z);
-*/
                     BitmapEcran.DrawPixel(px,pz, NearestCouleur);
-
                 }
             }
         }

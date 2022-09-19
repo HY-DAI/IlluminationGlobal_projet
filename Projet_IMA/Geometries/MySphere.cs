@@ -11,13 +11,17 @@ namespace Projet_IMA
         public float Rayon;
 
 
+        //---------------------------------------
+        // Constructeurs :
+        //---------------------------------------
+
         public MySphere(V3 centreSphere, float rayon, float pas, MyMaterial material) 
         {
             CentreSphere = centreSphere;
             Rayon = rayon;
             Material = material;
-            Maillage = CreerMaillageColore(pas);
-            MyRF.Calcul_normals_with_bump(this, out Maillage.Normals);
+            //Maillage = CreerMaillageColore(pas);
+            //Calcul_normals_with_bump(this, out Maillage.Normals);
         }
 
         public MySphere(V3 centreSphere, float rayon, float pas, Texture texture) :
@@ -29,6 +33,35 @@ namespace Projet_IMA
         { }
 
 
+        //---------------------------------------
+        // private méthodes :
+        //---------------------------------------
+
+        /*
+                private MyMaillage CreerMaillageColore(float pas)
+                {
+                    List<V3> points = new List<V3>();
+                    List<Couleur> couleurs = new List<Couleur>();
+
+                    for (float u = 0; u < 2 * IMA.PI; u += pas)  // echantillonage fnt paramétrique
+                        for (float v = -IMA.PI / 2; v < IMA.PI / 2; v += pas)
+                        {
+                            // calcul des coordoonées dans la scène 3D
+                            V3 P3D = get3DPoint(u,v);
+                            float unormalized = u / (2 * IMA.PI);
+                            float vnormalized = (v + IMA.PI / 2) / (IMA.PI);
+                            Couleur couleur = Material.ColorMap.LireCouleur(unormalized, vnormalized);
+                            points.Add(P3D);
+                            couleurs.Add(couleur);
+                        }
+                    return new MyMaillage(points, couleurs);
+                }
+        */
+
+        //---------------------------------------
+        // public méthodes :
+        //---------------------------------------
+
         public override V3 get3DPoint(float u, float v)
         {
             float x3D = Rayon * IMA.Cosf(v) * IMA.Cosf(u) + CentreSphere.x;
@@ -37,24 +70,7 @@ namespace Projet_IMA
             return new V3(x3D, y3D, z3D);
         }
 
-        private MyMaillage CreerMaillageColore(float pas)
-        {
-            List<V3> points = new List<V3>();
-            List<Couleur> couleurs = new List<Couleur>();
 
-            for (float u = 0; u < 2 * IMA.PI; u += pas)  // echantillonage fnt paramétrique
-                for (float v = -IMA.PI / 2; v < IMA.PI / 2; v += pas)
-                {
-                    // calcul des coordoonées dans la scène 3D
-                    V3 P3D = get3DPoint(u,v);
-                    float unormalized = u / (2 * IMA.PI);
-                    float vnormalized = (v + IMA.PI / 2) / (IMA.PI);
-                    Couleur couleur = Material.ColorMap.LireCouleur(unormalized, vnormalized);
-                    points.Add(P3D);
-                    couleurs.Add(couleur);
-                }
-            return new MyMaillage(points, couleurs);
-        }
 
         public override V3 GetNormalOfPoint(V3 point)
         {

@@ -77,6 +77,7 @@
     <Compile Include="Lights\MyLight.cs" />
     <Compile Include="Geometries\Mesh_Material\MyMaterial.cs" />
     <Compile Include="Geometries\MyParallelogram.cs" />
+    <Compile Include="Lights\MyPointLight.cs" />
     <Compile Include="MyRF.cs" />
     <Compile Include="Geometries\MySphere.cs" />
     <Compile Include="Trigo_InvertCoordSpherique.cs" />

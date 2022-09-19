@@ -13,7 +13,6 @@ namespace Projet_IMA
         int Largeur;
         Couleur [,] C;
 
-        // public functions
         // u,v compris entre 0 et 1
 
         public static Texture BrickMap = new Texture("brick01.jpg");
@@ -34,6 +33,10 @@ namespace Projet_IMA
         public static Texture LeadBumpMap = new Texture("lead_bump.jpg");
 
 
+        //---------------------------------------
+        // Constructeurs :
+        //---------------------------------------
+
         public Texture(Couleur Couleur)
         {
             Hauteur = 1;
@@ -41,27 +44,6 @@ namespace Projet_IMA
             C = new Couleur[Largeur, Hauteur];
             C[0, 0] = Couleur;
         }
-
-        public Couleur LireCouleur(float u, float v)
-        {
-            return Interpol(Largeur * u, Hauteur * v);
-        }
-
-
-        public void Bump(float u, float v, out float dhdu, out float dhdv)
-        {
-            float x = u * Hauteur;
-            float y = v * Largeur;
-
-            float vv = Interpol(x, y).GreyLevel();
-            float vx = Interpol(x + 1, y).GreyLevel();
-            float vy = Interpol(x, y + 1).GreyLevel();
-
-            dhdu = vx - vv;
-            dhdv = vy - vv;
-        }
-    
-        // constructor
 
         public Texture(string ff)
         {
@@ -93,12 +75,38 @@ namespace Projet_IMA
             B.Dispose();
         }
 
-       
-                
-                
 
 
-        // private functions
+
+
+        //---------------------------------------
+        // Public functions :
+        //---------------------------------------
+
+        public Couleur LireCouleur(float u, float v)
+        {
+            return Interpol(Largeur * u, Hauteur * v);
+        }
+
+
+        public void Bump(float u, float v, out float dhdu, out float dhdv)
+        {
+            float x = u * Hauteur;
+            float y = v * Largeur;
+
+            float vv = Interpol(x, y).GreyLevel();
+            float vx = Interpol(x + 1, y).GreyLevel();
+            float vy = Interpol(x, y + 1).GreyLevel();
+
+            dhdu = vx - vv;
+            dhdv = vy - vv;
+        }
+
+
+
+        //---------------------------------------
+        // Private functions :
+        //---------------------------------------
 
         private Couleur Interpol(float Lu, float Hv)
         {
