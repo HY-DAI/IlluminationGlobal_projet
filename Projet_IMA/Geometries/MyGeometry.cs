@@ -23,5 +23,10 @@ namespace Projet_IMA
         public abstract V3 GetNormalOfPoint(V3 point);
 
         public abstract void CalculateDifferentialUV(V3 point, out float u, out float v, out V3 dmdu, out V3 dmdv);
+
+        public abstract bool RaycastingIntersection(V3 RayonOrigine, V3 RayonDirection, out float u, out float v);
+
+        public abstract V3 get3DPoint(float u, float v);
+
     }
 }

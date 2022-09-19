@@ -11,7 +11,7 @@ namespace Projet_IMA
         public float Rayon;
 
 
-        public MySphere(V3 centreSphere, float rayon, float pas, MyMaterial material)
+        public MySphere(V3 centreSphere, float rayon, float pas, MyMaterial material) 
         {
             CentreSphere = centreSphere;
             Rayon = rayon;
@@ -28,6 +28,15 @@ namespace Projet_IMA
             this(centreSphere, rayon, pas, new Texture(couleur))
         { }
 
+
+        public override V3 get3DPoint(float u, float v)
+        {
+            float x3D = Rayon * IMA.Cosf(v) * IMA.Cosf(u) + CentreSphere.x;
+            float y3D = Rayon * IMA.Cosf(v) * IMA.Sinf(u) + CentreSphere.y;
+            float z3D = Rayon * IMA.Sinf(v) + CentreSphere.z;
+            return new V3(x3D, y3D, z3D);
+        }
+
         private MyMaillage CreerMaillageColore(float pas)
         {
             List<V3> points = new List<V3>();
@@ -37,14 +46,11 @@ namespace Projet_IMA
                 for (float v = -IMA.PI / 2; v < IMA.PI / 2; v += pas)
                 {
                     // calcul des coordoonées dans la scène 3D
-                    float x3D = Rayon * IMA.Cosf(v) * IMA.Cosf(u) + CentreSphere.x;
-                    float y3D = Rayon * IMA.Cosf(v) * IMA.Sinf(u) + CentreSphere.y;
-                    float z3D = Rayon * IMA.Sinf(v) + CentreSphere.z;
+                    V3 P3D = get3DPoint(u,v);
                     float unormalized = u / (2 * IMA.PI);
                     float vnormalized = (v + IMA.PI / 2) / (IMA.PI);
-                    V3 point = new V3(x3D, y3D, z3D);
                     Couleur couleur = Material.ColorMap.LireCouleur(unormalized, vnormalized);
-                    points.Add(point);
+                    points.Add(P3D);
                     couleurs.Add(couleur);
                 }
             return new MyMaillage(points, couleurs);
@@ -57,6 +63,7 @@ namespace Projet_IMA
             return normal ;
         }
 
+
         public override void CalculateDifferentialUV(V3 point,out float u, out float v, out V3 dmdu, out V3 dmdv)
         {
             IMA.Invert_Coord_Spherique(point, CentreSphere, Rayon, out u, out v);
@@ -68,5 +75,33 @@ namespace Projet_IMA
             v = (v + IMA.PI / 2) / (IMA.PI);
         }
 
+
+        public override bool RaycastingIntersection(V3 RayonOrigine, V3 RayonDirection, out float u, out float v) {
+            V3 intersection = RayonOrigine;
+            bool intersectionExists = false;
+
+            float A = RayonDirection * RayonDirection;
+            float B = 2 * (RayonOrigine - CentreSphere) * RayonDirection;
+            float C = (RayonOrigine - CentreSphere) * (RayonOrigine - CentreSphere) - Rayon * Rayon;
+
+            float D = B * B - 4 * A * C;
+            float t1 = (-B - IMA.Sqrtf(D)) / (2 * A);
+            float t2 = (-B + IMA.Sqrtf(D)) / (2 * A);
+
+            if (t1 > 0 && t2 > 0)
+            {
+                intersection = RayonOrigine + t1 * RayonDirection;
+                intersectionExists = true;
+            }
+            else if (t1 < 0 || t2 > 0)
+            {
+                intersection = RayonOrigine + t2 * RayonDirection;
+                intersectionExists = true;
+            }
+
+            IMA.Invert_Coord_Spherique(intersection, CentreSphere, Rayon, out u, out v);
+
+            return intersectionExists;
+        }
     }
 }
