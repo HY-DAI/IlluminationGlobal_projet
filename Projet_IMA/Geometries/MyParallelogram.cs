@@ -90,13 +90,13 @@ namespace Projet_IMA
         }
 
 
-        public override bool RaycastingIntersection(V3 RayonOrigine, V3 RayonDirection, out float u, out float v)
+        public override bool RaycastingIntersection(V3 RayonOrigine, V3 RayonDirection, out float u, out float v, out V3 intersection)
         {
             bool intersectionExists = false;
 
             V3 n = GetNormalOfPoint(Origine);
             float t = (Origine - RayonOrigine) * n / (RayonDirection * n);
-            V3 intersection = RayonOrigine + t * RayonDirection;
+            intersection = RayonOrigine + t * RayonDirection;
             u = (Coté2 ^ n) * (intersection - Origine) / (Coté1 ^ Coté2).Norm();
             v = -(Coté1 ^ n) * (intersection - Origine) / (Coté1 ^ Coté2).Norm();
 

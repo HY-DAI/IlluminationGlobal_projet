@@ -56,6 +56,11 @@ namespace Projet_IMA
         {
             LightDirection.Normalize();
         }
+
+        public abstract V3 getLightDirOnPoint(V3 point);
+
+
+        public abstract Couleur shadowsIfIntersection(List<MyGeometry> geometriesList, MyGeometry geometry, V3 point, Couleur couleur);
     }
 
 }

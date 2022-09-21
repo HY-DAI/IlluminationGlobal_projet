@@ -76,8 +76,9 @@ namespace Projet_IMA
             int nbpz = 600; // 540;
             float u, v;
 
-            V3 NearestIntersection;
+            V3 NearestIntersection,ip;
             Couleur NearestCouleur;
+            MyGeometry IntersectedGeometry=geometriesList[0];
 
             for (int px = 0; px < nbpx; px++)
             {
@@ -88,20 +89,21 @@ namespace Projet_IMA
                     NearestCouleur = Couleur.White * 0.1f;
                     foreach (MyGeometry geometry in geometriesList)
                     {
-                        if (geometry.RaycastingIntersection(eyePosition, RayonDirection, out u, out v))
+                        if (geometry.RaycastingIntersection(eyePosition, RayonDirection, out u, out v, out ip))
                         {
                             V3 P3D = geometry.get3DPoint(u, v);
                             if ((P3D - eyePosition).Norm() < (NearestIntersection - eyePosition).Norm())
                             {
                                 NearestIntersection = P3D;
                                 geometry.Calcul_diffuse_speculaire_bumps(lightsList, eyePosition, P3D, out NearestCouleur);
-                                foreach (MyLight light in lightsList)
-                                {
-                                    if (geometry.RaycastingIntersection(light.LightPosition, RayonDirection, out u, out v)) { }
-                                }
+                                IntersectedGeometry = geometry;
                             }
                         }
-                    }
+                    }/*
+                    foreach (MyLight light in lightsList)
+                    {
+                        NearestCouleur = light.shadowsIfIntersection(geometriesList, IntersectedGeometry, NearestIntersection, NearestCouleur);
+                    }*/
                     BitmapEcran.DrawPixel(px,pz, NearestCouleur);
                 }
             }

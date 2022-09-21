@@ -30,7 +30,7 @@ namespace Projet_IMA
 
         public abstract void CalculateDifferentialUV(V3 point, out float u, out float v, out V3 dmdu, out V3 dmdv);
 
-        public abstract bool RaycastingIntersection(V3 RayonOrigine, V3 RayonDirection, out float u, out float v);
+        public abstract bool RaycastingIntersection(V3 RayonOrigine, V3 RayonDirection, out float u, out float v, out V3 intersection);
 
         public abstract V3 get3DPoint(float u, float v);
 
@@ -69,7 +69,7 @@ namespace Projet_IMA
             Couleur CSpeculaire;
 
             float u, v;
-            V3 dmdu, dmdv;
+            V3 dmdu, dmdv, ip;
             CalculateDifferentialUV(point, out u, out v, out dmdu, out dmdv);
             couleur = Material.ColorMap.LireCouleur(u, v); ;
 
@@ -77,7 +77,16 @@ namespace Projet_IMA
             foreach (MyLight light in lightsList)
             {
                 CAmb = light.Couleur;
-                lightDirection = light.LightDirection;
+                //lightDirection = light.LightDirection;
+                lightDirection = light.getLightDirOnPoint(point);
+
+                foreach (MyGeometry geom in GeometriesList)
+                {
+                    if (!Object.ReferenceEquals(this, geom) && RaycastingIntersection(point, -light.getLightDirOnPoint(point), out u, out v, out ip))
+                        if ((ip - light.LightPosition).Norm() < (point - light.LightPosition).Norm())
+                            Cinterm = couleur * (Couleur.White - light.Couleur * 0.9f);
+                }
+
                 point2eyesDirection = point.NormalizedDirectionToVec(eyePosition);
 
                 // normal and then normal_with_bumps :

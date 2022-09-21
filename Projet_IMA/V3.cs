@@ -132,5 +132,15 @@ namespace Projet_IMA
         {
             return u.x * v.x + u.y * v.y + u.z * v.z;
         }
+
+        public static bool colinear(V3 u, V3 v)
+        {
+            return u * v - u.Norm() * v.Norm() < 0.001;
+        }
+        public static bool orthogonal(V3 u, V3 v)
+        {
+            return u * v < 0.001;
+        }
+
     }
 }
