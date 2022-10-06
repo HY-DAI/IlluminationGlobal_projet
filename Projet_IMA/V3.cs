@@ -11,6 +11,8 @@ namespace Projet_IMA
         public float y;
         public float z;
 
+        public static V3 Vnull = new V3(0, 0, 0);
+
         public float Norm()		// retourne la norme du vecteur
         {
             return (float) IMA.Sqrtf(x * x + y * y + z * z);

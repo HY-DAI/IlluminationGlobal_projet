@@ -62,7 +62,12 @@ namespace Projet_IMA
         // public méthodes :
         //---------------------------------------
 
-        public override V3 get3DPoint(float u, float v)
+        public override V3 GetBarycenter()
+        {
+            return CentreSphere;
+        }
+
+        public override V3 Get3DPoint(float u, float v)
         {
             float x3D = Rayon * IMA.Cosf(v) * IMA.Cosf(u) + CentreSphere.x;
             float y3D = Rayon * IMA.Cosf(v) * IMA.Sinf(u) + CentreSphere.y;

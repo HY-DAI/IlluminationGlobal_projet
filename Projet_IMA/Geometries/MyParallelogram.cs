@@ -65,7 +65,14 @@ namespace Projet_IMA
         // public méthodes :
         //---------------------------------------
 
-        public override V3 get3DPoint(float u, float v)
+
+        public override V3 GetBarycenter()
+        {
+            return Origine + Coté1 / 2 + Coté2 / 2;
+        }
+
+
+        public override V3 Get3DPoint(float u, float v)
         {
             return Origine + u * Coté1 + v * Coté2;
         }
@@ -73,14 +80,25 @@ namespace Projet_IMA
         public override V3 GetNormalOfPoint(V3 point)
         {
             V3 normal = (Coté1 ^ Coté2) / (Coté1 ^ Coté2).Norm();
-            if (normal.y > 0)
+
+            /*
+            V3 point2eyesDirection = Origine.NormalizedDirectionToVec(MyRenderingManager.eyeLocation);
+            V3 interm;
+            if (normal * point2eyesDirection > 0)
+            {
                 normal = -normal;
+            }
+
+
+            Console.WriteLine($"normal.x : {normal.x}");
+            Console.WriteLine($"normal.y : {normal.y}");
+            Console.WriteLine($"normal.z : {normal.z}");
+            */
             return normal;
         }
 
         public override void CalculateDifferentialUV(V3 point, out float u, out float v, out V3 dmdu, out V3 dmdv)
         {
-            //V3 n = point - Origine;
             V3 n = GetNormalOfPoint(Origine);
             u = (Coté2 ^ n) * (point - Origine) / (Coté1 ^ Coté2).Norm();
             v = (Coté1 ^ n) * (point - Origine) / (Coté2 ^ Coté1).Norm();
