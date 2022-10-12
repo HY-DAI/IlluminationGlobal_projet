@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Projet_IMA.Geometries.GeometryComponents;
 
-namespace Projet_IMA
+namespace Projet_IMA.Geometries
 {
     class MySphere : MyGeometry
     {
@@ -20,6 +21,7 @@ namespace Projet_IMA
             CentreSphere = centreSphere;
             Rayon = rayon;
             Material = material;
+            Material.LightMap = new Texture(Couleur.Black, (int)(1 / pas), (int)(1 / pas));
             //Maillage = CreerMaillageColore(pas);
             //Calcul_normals_with_bump(this, out Maillage.Normals);
         }
@@ -85,19 +87,26 @@ namespace Projet_IMA
         }
 
 
-        public override void CalculateDifferentialUV(V3 point,out float u, out float v, out V3 dmdu, out V3 dmdv)
+        //private void normalizeUV(float out u, float out v)
+       
+        public override void CalculateUV(V3 point, out float u, out float v)
         {
             IMA.Invert_Coord_Spherique(point, CentreSphere, Rayon, out u, out v);
-            dmdu = -Rayon * (new V3(IMA.Sinf(u) * IMA.Cosf(v), -IMA.Cosf(u) * IMA.Cosf(v), 0));
-            dmdv = -Rayon * (new V3(IMA.Cosf(u) * IMA.Sinf(v), IMA.Sinf(u) * IMA.Sinf(v), -IMA.Cosf(v)));
-
             // normalize u and v
             u = u / (2 * IMA.PI);
             v = (v + IMA.PI / 2) / (IMA.PI);
         }
 
+        public override void CalculateDifferentialUV(V3 point, out V3 dmdu, out V3 dmdv)
+        {
+            float u, v;
+            IMA.Invert_Coord_Spherique(point, CentreSphere, Rayon, out u, out v);
+            dmdu = -Rayon * (new V3(IMA.Sinf(u) * IMA.Cosf(v), -IMA.Cosf(u) * IMA.Cosf(v), 0));
+            dmdv = -Rayon * (new V3(IMA.Cosf(u) * IMA.Sinf(v), IMA.Sinf(u) * IMA.Sinf(v), -IMA.Cosf(v)));
+        }
 
-        public override bool RaycastingIntersection(V3 RayonOrigine, V3 RayonDirection, out float u, out float v, out V3 intersection)
+
+        public override bool RaycastingIntersection(V3 RayonOrigine, V3 RayonDirection, out V3 intersection)
         {
             intersection = RayonOrigine;
             bool intersectionExists = false;
@@ -128,8 +137,6 @@ namespace Projet_IMA
                 intersection = RayonOrigine + t * RayonDirection;
                 intersectionExists = true;
             }
-
-            IMA.Invert_Coord_Spherique(intersection, CentreSphere, Rayon, out u, out v);
 
             return intersectionExists;
         }

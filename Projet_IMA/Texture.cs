@@ -37,13 +37,20 @@ namespace Projet_IMA
         // Constructeurs :
         //---------------------------------------
 
-        public Texture(Couleur Couleur)
+        public Texture(Couleur Couleur, int largeur, int hauteur)
         {
-            Hauteur = 1;
-            Largeur = 1;
+            Hauteur = hauteur;
+            Largeur = largeur;
             C = new Couleur[Largeur, Hauteur];
-            C[0, 0] = Couleur;
+            for (int x = 0; x < Largeur; x++)
+                for (int y = 0; y < Hauteur; y++)
+                    C[x, y] = Couleur;
         }
+
+        public Texture(Couleur Couleur) :
+            this(Couleur, 1, 1)
+        {   }
+
 
         public Texture(string ff)
         {

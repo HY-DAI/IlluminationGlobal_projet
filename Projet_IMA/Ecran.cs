@@ -91,6 +91,13 @@ namespace Projet_IMA
                 else DrawFastPixel(x_ecran, y_ecran, c);
         }
         
+        public static Couleur GetPixel(int x, int y)
+        { 
+            Color colorpx = B.GetPixel(x, y);
+            return new Couleur(colorpx.R, colorpx.G, colorpx.B);
+        }
+
+
         static public void Show()
         {
             if (Mode == ModeAff.FULL_SPEED)

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Projet_IMA.Geometries.GeometryComponents;
 
-namespace Projet_IMA
+namespace Projet_IMA.Geometries
 {
     abstract class MyGeometry
     {
@@ -31,19 +32,13 @@ namespace Projet_IMA
         public abstract V3 Get3DPoint(float u, float v);
 
         public abstract V3 GetNormalOfPoint(V3 point);
+        
+        public abstract void CalculateUV(V3 point, out float u, out float v);
 
-        public abstract void CalculateDifferentialUV(V3 point, out float u, out float v, out V3 dmdu, out V3 dmdv);
+        public abstract void CalculateDifferentialUV(V3 point, out V3 dmdu, out V3 dmdv);
+        
 
-
-        public abstract bool RaycastingIntersection(V3 RayonOrigine, V3 RayonDirection, out float u, out float v, out V3 intersection);
-
-        public bool RaycastingIntersection(V3 RayonOrigine, V3 RayonDirection)
-        {
-            float u, v;
-            V3 intersection;
-            return RaycastingIntersection(RayonOrigine, RayonDirection, out u, out v, out intersection);
-        }
-
+        public abstract bool RaycastingIntersection(V3 RayonOrigine, V3 RayonDirection, out V3 intersection);
 
         public V3 GetNormalWithBump(V3 normal, float u, float v, V3 dmdu, V3 dmdv)
         {
@@ -58,63 +53,6 @@ namespace Projet_IMA
         }
 
 
-        public void Calcul_diffuse_speculaire_bumps(List<MyLight> lightsList, V3 eyePosition, V3 uncoloredPoint, out Couleur couleur)
-        {
-            // Normalized vectors : L, R, N, D 
-            V3 lightDirection;
-            V3 reflectedLightDirection;
-            V3 normal;
-            V3 point2eyesDirection;
-
-            float u, v;
-            V3 dmdu, dmdv;
-            //V3 intersectionPointOcclusion;
-            CalculateDifferentialUV(uncoloredPoint, out u, out v, out dmdu, out dmdv);
-            couleur = Material.ColorMap.LireCouleur(u, v); ;
-
-            // Colors that will be added together
-            Couleur CAmb;
-            Couleur CDiffuse;
-            Couleur CSpeculaire;
-            Couleur Cocclusion;
-            Couleur Cinterm = Couleur.Black;
-
-            foreach (MyLight light in lightsList)
-            {
-                CAmb = light.Couleur;
-                normal = GetNormalOfPoint(uncoloredPoint);
-                lightDirection = light.GetLightDirOnPoint(uncoloredPoint);
-                point2eyesDirection = uncoloredPoint.NormalizedDirectionToVec(eyePosition);
-
-                // particulierement pour une RectLight
-                if (!light.IlluminatedUnderPhysicalLight(uncoloredPoint))
-                    continue;
-
-                // occlusion management :
-                if (light.ShadowsIfIntersection(GeometriesList, this, uncoloredPoint, couleur, out Cocclusion))
-                {
-                    Cinterm += Cocclusion;// * CAmb;
-                    continue;
-                }
-
-                // normal with bumps : les u,v,dmdu,dmdv are from the function CalculateDifferentialUV
-                normal = GetNormalWithBump(normal, u, v, dmdu, dmdv);
-
-                // si la face n'est pas éclairée dans le bon sens
-                if (V3.prod_scal(normal, -lightDirection) < 0)
-                    reflectedLightDirection = V3.Vnull;
-
-                // diffuse and specular management :
-                reflectedLightDirection = lightDirection + 2 * normal * V3.prod_scal(normal, -lightDirection);
-                CDiffuse = couleur * CAmb * V3.prod_scal(normal, -lightDirection);
-                CSpeculaire = couleur * CAmb * (float)Math.Pow(V3.prod_scal(reflectedLightDirection, point2eyesDirection), Material.SpecularPower);
-                
-                CDiffuse.check();
-                CSpeculaire.check();
-
-                Cinterm += couleur*CAmb + CDiffuse + CSpeculaire;
-            }
-            couleur = Cinterm;
-        }
+       
     }
 }

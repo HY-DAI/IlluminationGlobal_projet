@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Projet_IMA
+namespace Projet_IMA.Lights
 {
     class MyDirectionalLight : MyLight
     {

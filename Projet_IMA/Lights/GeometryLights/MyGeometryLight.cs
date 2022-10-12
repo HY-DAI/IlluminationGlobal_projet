@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Projet_IMA.Geometries;
 
-namespace Projet_IMA
+namespace Projet_IMA.Lights.GeometryLights
 {
     abstract class MyGeometryLight : MyLight
     {

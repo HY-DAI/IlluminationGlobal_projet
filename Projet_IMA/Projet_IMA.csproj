@@ -71,23 +71,24 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="Geometries\Mesh_Material\MyMaillage.cs" />
+    <Compile Include="Geometries\GeometryComponents\MyMaillage.cs" />
     <Compile Include="Lights\MyConeLight.cs" />
     <Compile Include="Lights\MyDirectionalLight.cs" />
     <Compile Include="Geometries\MyGeometry.cs" />
-    <Compile Include="Lights\MyGeometryLight.cs" />
+    <Compile Include="Lights\GeometryLights\MyGeometryLight.cs" />
     <Compile Include="Lights\MyLight.cs" />
-    <Compile Include="Geometries\Mesh_Material\MyMaterial.cs" />
+    <Compile Include="Geometries\GeometryComponents\MyMaterial.cs" />
     <Compile Include="Geometries\MyParallelogram.cs" />
     <Compile Include="Lights\MyPointLight.cs" />
-    <Compile Include="Lights\MyRectLight.cs" />
+    <Compile Include="Lights\GeometryLights\MyRectLight.cs" />
+    <Compile Include="Lights\MyVirtualPointLight.cs" />
     <Compile Include="MyRenderingManager.cs" />
     <Compile Include="Geometries\MySphere.cs" />
     <Compile Include="Trigo_InvertCoordSpherique.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProjetEleve.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Geometries\Mesh_Material\Texture.cs" />
+    <Compile Include="Texture.cs" />
     <Compile Include="V3.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>

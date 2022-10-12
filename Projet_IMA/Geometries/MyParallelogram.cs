@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Projet_IMA.Geometries.GeometryComponents;
 
-namespace Projet_IMA
+namespace Projet_IMA.Geometries
 {
     class MyParallelogram : MyGeometry
     {
@@ -21,8 +22,16 @@ namespace Projet_IMA
             Coté1 = cote1;
             Coté2 = cote2;
             Material = material;
+            Material.LightMap = new Texture(Couleur.Black, (int)(1/pas), (int)(1/pas));
             //Maillage = CreerMaillageColore(pas);
             //Calcul_normals_with_bump(this, out Maillage.Normals);
+
+            V3 eyes2pointDirection = MyRenderingManager.eyeLocation.NormalizedDirectionToVec(origine);
+            if ( (Coté1 ^ Coté2) * eyes2pointDirection > 0 )
+            {
+                Coté1 = cote2;
+                Coté2 = cote1;
+            }
         }
 
         public MyParallelogram(V3 origine, V3 cote1, V3 cote2, float pas, Texture texture) :
@@ -82,14 +91,6 @@ namespace Projet_IMA
             V3 normal = (Coté1 ^ Coté2) / (Coté1 ^ Coté2).Norm();
 
             /*
-            V3 point2eyesDirection = Origine.NormalizedDirectionToVec(MyRenderingManager.eyeLocation);
-            V3 interm;
-            if (normal * point2eyesDirection > 0)
-            {
-                normal = -normal;
-            }
-
-
             Console.WriteLine($"normal.x : {normal.x}");
             Console.WriteLine($"normal.y : {normal.y}");
             Console.WriteLine($"normal.z : {normal.z}");
@@ -97,31 +98,35 @@ namespace Projet_IMA
             return normal;
         }
 
-        public override void CalculateDifferentialUV(V3 point, out float u, out float v, out V3 dmdu, out V3 dmdv)
+        public override void CalculateUV(V3 point, out float u, out float v)
         {
             V3 n = GetNormalOfPoint(Origine);
             u = (Coté2 ^ n) * (point - Origine) / (Coté1 ^ Coté2).Norm();
-            v = (Coté1 ^ n) * (point - Origine) / (Coté2 ^ Coté1).Norm();
+            v = -(Coté1 ^ n) * (point - Origine) / (Coté2 ^ Coté1).Norm();
+        }
 
+        public override void CalculateDifferentialUV(V3 point, out V3 dmdu, out V3 dmdv)
+        {
             dmdu = Coté1;
             dmdv = Coté2;
         }
 
 
-        public override bool RaycastingIntersection(V3 RayonOrigine, V3 RayonDirection, out float u, out float v, out V3 intersection)
+        public override bool RaycastingIntersection(V3 RayonOrigine, V3 RayonDirection, out V3 intersection)
         {
+            float u, v;
             bool intersectionExists = false;
 
             V3 n = GetNormalOfPoint(Origine);
             float t = (Origine - RayonOrigine) * n / (RayonDirection * n);
             intersection = RayonOrigine + t * RayonDirection;
-            u = (Coté2 ^ n) * (intersection - Origine) / (Coté1 ^ Coté2).Norm();
-            v = -(Coté1 ^ n) * (intersection - Origine) / (Coté1 ^ Coté2).Norm();
+
+            CalculateUV(intersection, out u, out v);
 
             if ((0 <= u && u <= 1) && (0 <= v && v <= 1))
                 intersectionExists = true;
 
-            return intersectionExists;
+            return t>0 && intersectionExists;
         }
     }
 }
