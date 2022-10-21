@@ -49,7 +49,7 @@ namespace Projet_IMA.Lights
 
         public abstract V3 GetLightDirOnPoint(V3 point);
 
-        public abstract bool IlluminatedUnderPhysicalLight(V3 point);
+        public abstract bool CanIlluminatePoint(V3 point);
 
     }
 

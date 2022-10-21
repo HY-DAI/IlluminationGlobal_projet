@@ -10,6 +10,7 @@ namespace Projet_IMA.Geometries
     {
         //public MyMaillage Maillage;
         public MyMaterial Material;
+        public bool IsGeometryLight;
 
         public static List<MyGeometry> GeometriesList = new List<MyGeometry>();
 
@@ -19,6 +20,7 @@ namespace Projet_IMA.Geometries
         //---------------------------------------
         public MyGeometry()
         {
+            IsGeometryLight = false;
             MyGeometry.GeometriesList.Add(this);
         }
 

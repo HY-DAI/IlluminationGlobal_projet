@@ -95,6 +95,12 @@ namespace Projet_IMA
             return Interpol(Largeur * u, Hauteur * v);
         }
 
+        public void ConvertBW()
+        {
+            for (int l = 0; l < Largeur; l++)
+                for (int h=0; h<Hauteur; h++)
+                    C[l,h] = Couleur.White*C[l, h].GreyLevel();
+        }
 
         public void Bump(float u, float v, out float dhdu, out float dhdv)
         {
@@ -109,29 +115,47 @@ namespace Projet_IMA
             dhdv = vy - vv;
         }
 
-
+        public void SetColorByUV(float u, float v, Couleur couleur)
+        {
+            UVintoXY(Largeur*u, Hauteur*v, out int x, out int y);
+            C[x, y] = couleur;
+        }
 
         //---------------------------------------
         // Private functions :
         //---------------------------------------
 
+        private void UVintoXY(float u, float v, out int x, out int y)
+        {
+            x = (int)u; // plus grand entier <=
+            y = (int)v;
+
+            //  float cx = Lu - x; // reste
+            //  float cy = Hv - y;
+
+            x = x % Largeur;
+            y = y % Hauteur;
+            if (x < 0) x += Largeur;
+            if (y < 0) y += Hauteur;
+        }
+
         private Couleur Interpol(float Lu, float Hv)
         {
-            int x = (int)(Lu);  // plus grand entier <=
-            int y = (int)(Hv);
+            UVintoXY(Lu, Hv, out int x, out int y);
+            return C[x, y];
 
-          //  float cx = Lu - x; // reste
-          //  float cy = Hv - y;
+         /*
+            int x = (int)Lu; // plus grand entier <=
+            int y = (int)Hv;
+
+            float cx = Lu - x; // reste
+            float cy = Hv - y;
 
             x = x % Largeur;
             y = y % Hauteur;
             if (x < 0) x += Largeur;
             if (y < 0) y += Hauteur;
 
-
-            return C[x, y];
-
-        /* 
             int xpu = (x + 1) % Largeur;
             int ypu = (y + 1) % Hauteur;
 

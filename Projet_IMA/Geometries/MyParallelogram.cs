@@ -103,6 +103,7 @@ namespace Projet_IMA.Geometries
             V3 n = GetNormalOfPoint(Origine);
             u = (Coté2 ^ n) * (point - Origine) / (Coté1 ^ Coté2).Norm();
             v = -(Coté1 ^ n) * (point - Origine) / (Coté2 ^ Coté1).Norm();
+            v = 1 - v;
         }
 
         public override void CalculateDifferentialUV(V3 point, out V3 dmdu, out V3 dmdv)

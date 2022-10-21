@@ -39,7 +39,12 @@ namespace Projet_IMA
             this.B = c.B;
         }
 
-
+        public void setCouleur(Couleur c)
+        {
+            this.R = c.R;
+            this.V = c.V;
+            this.B = c.B;
+        }
 
         //---------------------------------------
         // méthodes

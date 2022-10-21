@@ -8,7 +8,7 @@ namespace Projet_IMA.Lights
 {
     class MyPointLight : MyLight
     {
-        V3 LightPosition;
+        public V3 LightPosition;
 
         //---------------------------------------
         // Constructeurs :
@@ -33,6 +33,6 @@ namespace Projet_IMA.Lights
         }
 
         // true by default for non physical lights
-        public override bool IlluminatedUnderPhysicalLight(V3 point) { return true; }
+        public override bool CanIlluminatePoint(V3 point) { return true; }
     }
 }

@@ -95,6 +95,7 @@ namespace Projet_IMA.Geometries
             // normalize u and v
             u = u / (2 * IMA.PI);
             v = (v + IMA.PI / 2) / (IMA.PI);
+            v = 1 - v;
         }
 
         public override void CalculateDifferentialUV(V3 point, out V3 dmdu, out V3 dmdv)

@@ -18,6 +18,7 @@ namespace Projet_IMA.Lights
         public MyConeLight(V3 lightpos, V3 lightdir, Couleur couleur, float intensity, float angle) :
             base(couleur, intensity)
         {
+            lightdir.Normalize();
             LightPosition = lightpos;
             LightDirection = lightdir;
             Angle = angle;
@@ -33,7 +34,7 @@ namespace Projet_IMA.Lights
             return LightDirection;
         }
 
-        public override bool IlluminatedUnderPhysicalLight(V3 pointofgeom)
+        public override bool CanIlluminatePoint(V3 pointofgeom)
         {
             V3 lightToPointDir = LightPosition.NormalizedDirectionToVec(pointofgeom);
             float cosOfAngle = lightToPointDir * LightDirection;

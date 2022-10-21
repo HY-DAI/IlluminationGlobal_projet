@@ -18,7 +18,7 @@ namespace Projet_IMA.Lights.GeometryLights
             return Geometry.GetNormalOfPoint(point);
         }
 
-        public override bool IlluminatedUnderPhysicalLight(V3 pointofgeom)
+        public override bool CanIlluminatePoint(V3 pointofgeom)
         {
             V3 intersection;
             V3 lightToPointDir = Geometry.GetBarycenter().NormalizedDirectionToVec(pointofgeom);

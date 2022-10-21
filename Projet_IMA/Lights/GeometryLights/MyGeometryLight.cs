@@ -14,6 +14,7 @@ namespace Projet_IMA.Lights.GeometryLights
             base(couleur, intensity)
         {
             Geometry = geometry;
+            Geometry.IsGeometryLight = true;
         }
 
         public MyGeometryLight(Couleur couleur, float intensity) :
