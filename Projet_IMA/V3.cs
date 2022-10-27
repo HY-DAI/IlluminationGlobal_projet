@@ -144,5 +144,46 @@ namespace Projet_IMA
             return u * v < 0.001;
         }
 
+
+        public static V3 GetRandomDirection()
+        {
+            float x, y, z;
+            float theta = 2 * IMA.PI * IMA.RandP(1.0f);
+            float phi = IMA.Cosf(2 * IMA.RandP(1.0f) - 1.0f);
+            x = IMA.Cosf(theta) * IMA.Sinf(phi);
+            y = IMA.Sinf(theta) * IMA.Sinf(phi);
+            z = IMA.Cosf(phi);
+            return new V3(x, y, z);
+        }
+
+        public static List<V3> GetRandomDirections(int n)
+        {
+            List<V3> listofdir = new List<V3>();
+            for (int i = 0; i < n; i++)
+            {
+                listofdir.Add(GetRandomDirection());
+            }
+            return listofdir;
+        }
+
+        public static List<V3> GetRandomDirectionsAlongVector(int n, V3 vector)
+        {
+            int nb = 0;
+            List<V3> returnlist = new List<V3>();
+            List<V3> listofdir = GetRandomDirections(n * 2);
+            foreach (V3 dir in listofdir)
+            {
+                if (nb >= n)
+                    break;
+
+                if (dir * vector > 0)
+                {
+                    returnlist.Add(dir);
+                    nb++;
+                }
+            }
+            return returnlist;
+        }
+
     }
 }

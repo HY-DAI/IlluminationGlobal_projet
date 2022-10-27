@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Drawing.Imaging;
 using System.Threading;
 using System.Collections.Concurrent;
+using Projet_IMA.Lights;
 
 namespace Projet_IMA
 {
@@ -38,8 +39,9 @@ namespace Projet_IMA
         public bool Checked()               { return checkBox1.Checked;   }
         public void PictureBoxInvalidate()  { pictureBox1.Invalidate(); }
         public void PictureBoxRefresh()     { pictureBox1.Refresh();    }
+
 /*
-        // Séquentiel :
+        // Séquentiel -----------------------------------------------------
         private void button1_Click(object sender, EventArgs e)
         {
             BitmapEcran.RefreshScreen(new Couleur(0.2f, 0.2f, 0.2f));
@@ -57,7 +59,7 @@ namespace Projet_IMA
 
         }
 
-        //-------------------------------------------------------
+        // Multithreading -------------------------------------------------------
 
         // lorsque vous cliquez sur le bouton dans la fenêtre
         private void button1_Click(object sender, EventArgs e)
@@ -80,6 +82,8 @@ namespace Projet_IMA
                 LThreads.Add(T);
                 T.Start();        // demarre le thread enfant
             }
+
+
         }
 
         delegate void MonDelegue(Point P, Bitmap B);
@@ -109,6 +113,27 @@ namespace Projet_IMA
             {
                 // crée un bitmap local correspondant à la zone à dessiner
                 Bitmap B = MyRenderingManager.SetBitmapPixels(ProjetEleve.lights, ProjetEleve.geometries, CoordZone, LargZonePix);
+                Graphics G = Graphics.FromImage(B);
+
+                // renvoi les infos suffisantes dans un évènement pour que
+                // le thread principal puisse dessiner la région au bon endroit
+                var d = new MonDelegue(DrawInMainThread);
+                pictureBox1.Invoke(d, new object[] { CoordZone, B });
+            }
+        }
+
+        private void FntThread2(int idThread)
+        {
+            //Brush MaCouleur = LBrushes[idThread];
+            //int MonTemps = Temps[idThread];
+
+            Point CoordZone;
+
+            // capture une zone dans la liste des zones à traiter
+            while (JobList.TryTake(out CoordZone))
+            {
+                // crée un bitmap local correspondant à la zone à dessiner
+                Bitmap B = MyRenderingManager.reSetBitmapPixels(ProjetEleve.lights, ProjetEleve.geometries, CoordZone, LargZonePix);
                 Graphics G = Graphics.FromImage(B);
 
                 // renvoi les infos suffisantes dans un évènement pour que

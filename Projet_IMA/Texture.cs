@@ -11,7 +11,7 @@ namespace Projet_IMA
     {
         int Hauteur;
         int Largeur;
-        Couleur [,] C;
+        Couleur [,] C ;
 
         // u,v compris entre 0 et 1
 
@@ -121,6 +121,15 @@ namespace Projet_IMA
             C[x, y] = couleur;
         }
 
+        public void SetColorByUVzone(float umin, float umax, float vmin, float vmax, Couleur couleur)
+        {
+            UVintoXY(Largeur * umin, Hauteur * vmin, out int xmin, out int ymin);
+            UVintoXY(Largeur * umax, Hauteur * vmax, out int xmax, out int ymax);
+            for (int x=xmin; x<xmax; x++)
+                for (int y = ymin; y < ymax; y++)
+                    C[x, y] = couleur;
+        }
+
         //---------------------------------------
         // Private functions :
         //---------------------------------------
@@ -130,9 +139,6 @@ namespace Projet_IMA
             x = (int)u; // plus grand entier <=
             y = (int)v;
 
-            //  float cx = Lu - x; // reste
-            //  float cy = Hv - y;
-
             x = x % Largeur;
             y = y % Hauteur;
             if (x < 0) x += Largeur;
@@ -141,10 +147,11 @@ namespace Projet_IMA
 
         private Couleur Interpol(float Lu, float Hv)
         {
+
             UVintoXY(Lu, Hv, out int x, out int y);
             return C[x, y];
 
-         /*
+/*
             int x = (int)Lu; // plus grand entier <=
             int y = (int)Hv;
 
@@ -167,7 +174,7 @@ namespace Projet_IMA
             + C[xpu, y] * ccx * (1 - ccy)
             + C[x, ypu] * (1 - ccx) * ccy
             + C[xpu, ypu] * ccx * ccy;
-        */
+*/
         }
     }    
 }

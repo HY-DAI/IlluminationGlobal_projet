@@ -51,6 +51,36 @@ namespace Projet_IMA.Lights
 
         public abstract bool CanIlluminatePoint(V3 point);
 
+
+        public static void splitLightsByClass(List<MyLight> lightlist, Type type, out List<MyLight> returnlistYes, out List<MyLight> returnlistNo)
+        {
+            returnlistYes = new List<MyLight>();
+            returnlistNo = new List<MyLight>();
+            foreach (MyLight light in lightlist)
+            {
+                if (light.GetType().Equals(type))
+                    returnlistYes.Add(light);
+                else returnlistNo.Add(light);
+            }
+        }
+
+        public static List<MyLight> getLightsOfClass(List<MyLight> lightlist, Type type)
+        {
+            splitLightsByClass(lightlist, type, out List<MyLight> returnlistYes, out List<MyLight> returnlistNo);
+            return returnlistYes;
+        }
+
+        public static List<MyLight> deleteLightsOfClass(List<MyLight> lightlist, Type type)
+        {
+            splitLightsByClass(lightlist, type, out List<MyLight> returnlistYes, out List<MyLight> returnlistNo);
+            foreach (MyLight light in returnlistYes)
+            {
+                if (MyLight.LightsList.Contains(light))
+                    LightsList.Remove(light);
+            }
+            return returnlistNo;
+        }
+
     }
 
 }

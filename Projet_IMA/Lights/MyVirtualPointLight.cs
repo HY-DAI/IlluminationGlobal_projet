@@ -8,17 +8,31 @@ namespace Projet_IMA.Lights
     class MyVirtualPointLight : MyLight
     {
         public V3 LightPosition;
+        public V3 LightDirection;
+        public int RayNumber;
+        public List<V3> RandDirections;
+
 
         //---------------------------------------
         // Constructeurs :
         //---------------------------------------
 
-        public MyVirtualPointLight(V3 lightpos, Couleur couleur, float intensity) :
+        public MyVirtualPointLight(V3 lightpos, Couleur couleur, float intensity, V3 direction, int nrayon) :
             base(couleur, intensity)
         {
             LightPosition = lightpos;
+            LightDirection = direction;
+            RayNumber = nrayon;
+            RandDirections = V3.GetRandomDirectionsAlongVector(nrayon,direction);
         }
-
+        public MyVirtualPointLight(V3 lightpos, Couleur couleur, float intensity, int nrayon) :
+            base(couleur, intensity)
+        {
+            LightPosition = lightpos;
+            LightDirection = V3.Vnull;
+            RayNumber = nrayon;
+            RandDirections = V3.GetRandomDirections(nrayon);
+        }
 
         //---------------------------------------
         // autres méthodes :
@@ -26,56 +40,20 @@ namespace Projet_IMA.Lights
 
         public override V3 GetLightDirOnPoint(V3 point)
         {
-            V3 lightdir = point - LightPosition;
-            lightdir.Normalize();
-            return lightdir;
+            return LightPosition.NormalizedDirectionToVec(point);
         }
 
-        // true by default for non physical lights
-        public override bool CanIlluminatePoint(V3 point) { return true; }
-
-
-        private V3 GetRandomDirection()
+        // true by default for non physical lights 
+        public override bool CanIlluminatePoint(V3 point)
         {
-            float x, y, z;
-            float theta = 2 * IMA.PI * IMA.RandP(1.0f);
-            float phi = IMA.Cosf(2 * IMA.RandP(1.0f) - 1.0f);
-            x = IMA.Cosf(theta) * IMA.Sinf(phi);
-            y = IMA.Sinf(theta) * IMA.Sinf(phi);
-            z = IMA.Cosf(phi);
-            /*
-            Console.WriteLine($"x : {x}");
-            Console.WriteLine($"y : {y}");
-            Console.WriteLine($"z : {z}");
-            */
-            return new V3(x, y, z);
-        }
-        public List<V3> GetRandomDirections(int n)
-        {
-            List<V3> listofdir = new List<V3>();
-            for (int i = 0; i < n; i++)  {
-                listofdir.Add(GetRandomDirection());
-            }
-            return listofdir;
+            V3 dir = GetLightDirOnPoint(point);
+            foreach (V3 vdir in RandDirections)
+                if (0.999f < dir*vdir && dir*vdir <1)
+                    if (IMA.RandP(1.0f)>0.5)
+                        return true;
+            return false;
         }
 
-        public List<V3> GetRandomDirectionsAlongVector(int n, V3 vector)
-        {
-            int nb = 0;
-            List<V3> returnlist = new List<V3>();
-            List<V3> listofdir = GetRandomDirections(n*2);
-            foreach (V3 dir in listofdir)
-            {
-                if (nb >= n)
-                    break;
 
-                if (dir * vector > 0)
-                {
-                    returnlist.Add(dir);
-                    nb++;
-                }
-            }
-            return returnlist;
-        }
     }
 }

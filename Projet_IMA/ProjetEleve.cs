@@ -29,8 +29,6 @@ namespace Projet_IMA
 
             V3 eyeLocation = new V3(largeurEcran / 2, -largeurEcran, hauteurEcran / 2);
 
-
-            Texture textureZemmour = new Texture("zemmour.jpg");
             //////////////////////////////////////////////////////////////////////////
             ///  Formes
             //////////////////////////////////////////////////////////////////////////
@@ -61,7 +59,9 @@ namespace Projet_IMA
             MySphere Sphere2 = new MySphere(sphereCenter+offset-offsety, radius, step, new MyMaterial(Texture.GoldMap, Texture.GoldBumpMap, 2.5f,50));
             MySphere Sphere3 = new MySphere(sphereCenter+2*offset, radius, step, new MyMaterial(Texture.LeadMap, Texture.LeadBumpMap, 2.5f,50));
 
-            MySphere Sphere4 = new MySphere(sphereCenter + new V3(radius*2, -radius*3,radius/3), radius/2, step, new MyMaterial(textureZemmour, textureZemmour, 2.5f, 50));
+
+            //Texture textureZemmour = new Texture("zemmour.jpg");
+            //MySphere Sphere4 = new MySphere(sphereCenter + new V3(radius*2, -radius*3,radius/3), radius/2, step, new MyMaterial(textureZemmour, textureZemmour, 2.5f, 50));
 
 
             //////////////////////////////////////////////////////////////////////////
@@ -69,26 +69,53 @@ namespace Projet_IMA
             //////////////////////////////////////////////////////////////////////////
 
 
-            MyLight PLight1 = new MyPointLight(eyeLocation + offset, Couleur.White, 0.15f);
+            //MyLight PLight1 = new MyPointLight(eyeLocation + offset, Couleur.White, 0.15f);
             //MyLight PLight2 = new MyPointLight(eyeLocation + offsety, Couleur.Cyan, 0.15f);
-
 
             MyLight Light1 = new MyDirectionalLight(new V3(-1, 1, -1), Couleur.White, 0.35f);
             MyLight Light2 = new MyDirectionalLight(new V3(1, 1f, -1), Couleur.Cyan, 0.1f);
             //MyLight Light3 = new MyDirectionalLight(new V3(1, 1f, 1), Couleur.Magenta, 0.15f);
             
             MyRectLight RectLight = new MyRectLight(Couleur.Yellow, 0.20f, wall_rand);
-            MyConeLight ConeLight = new MyConeLight(new V3(scalex / 2, scaley / 3, scalez / 2), new V3(0, 0, 1), Couleur.Red, 0.1f, 0.65f);
-            ConeLight.CanShadow = false;
+            //MyConeLight ConeLight = new MyConeLight(new V3(scalex / 2, scaley / 3, scalez / 2), new V3(0, 0, 1), Couleur.Red, 0.1f, 0.65f);
 
             //////////////////////////////////////////////////////////////////////////
-            ///  Dessin sur l'interface
+            ///  Mise au clair des objets présent dans la scène
             //////////////////////////////////////////////////////////////////////////
 
             ProjetEleve.lights = MyLight.LightsList;
             ProjetEleve.geometries = MyGeometry.GeometriesList;
 
+
+            //////////////////////////////////////////////////////////////////////////
+            ///  Dessin sur l'interface dans la version séquentielle
+            //////////////////////////////////////////////////////////////////////////
+
             //MyRenderingManager.Draw(MyLight.LightsList, MyGeometry.GeometriesList);
+
+
+            //////////////////////////////////////////////////////////////////////////
+            ///  Prise en Compte des Virtual Point Lights
+            //////////////////////////////////////////////////////////////////////////
+
+            /*
+
+                        // Fail 1 drole sur les Virtual Point Lights
+                        MyRenderingManager.map = "lightmaps";
+                        MyRenderingManager.UpdateLightMapsWithVPL(ProjetEleve.lights, ProjetEleve.geometries, 0.01f, 400);
+            */
+
+
+            /*
+                        // Fail 2 drole sur les Virtual Point Lights
+                        MyRenderingManager.map = "lightmaps";
+                        MyRenderingManager.GenerateVirtualPointLights(ProjetEleve.lights, ProjetEleve.geometries, out List<MyLight> vpls_all, 0.1f, 100);
+            */
+
+            //////////////////////////////////////////////////////////////////////////
+            ///  Prise en Compte des Virtual Point Lights
+            //////////////////////////////////////////////////////////////////////////
+
         }
 
     }

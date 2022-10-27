@@ -89,12 +89,6 @@ namespace Projet_IMA.Geometries
         public override V3 GetNormalOfPoint(V3 point)
         {
             V3 normal = (Coté1 ^ Coté2) / (Coté1 ^ Coté2).Norm();
-
-            /*
-            Console.WriteLine($"normal.x : {normal.x}");
-            Console.WriteLine($"normal.y : {normal.y}");
-            Console.WriteLine($"normal.z : {normal.z}");
-            */
             return normal;
         }
 

@@ -39,7 +39,6 @@ namespace Projet_IMA.Geometries
 
         public abstract void CalculateDifferentialUV(V3 point, out V3 dmdu, out V3 dmdv);
         
-
         public abstract bool RaycastingIntersection(V3 RayonOrigine, V3 RayonDirection, out V3 intersection);
 
         public V3 GetNormalWithBump(V3 normal, float u, float v, V3 dmdu, V3 dmdv)

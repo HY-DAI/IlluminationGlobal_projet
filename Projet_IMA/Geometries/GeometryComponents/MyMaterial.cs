@@ -7,11 +7,13 @@ namespace Projet_IMA.Geometries.GeometryComponents
 {
     class MyMaterial
     {
+        public float BumpIntensity;
+        public int SpecularPower;
+
         public Texture ColorMap;
         public Texture BumpMap;
         public Texture LightMap;
-        public float BumpIntensity;
-        public int SpecularPower;
+                                     
 
         public static MyMaterial Brick = new MyMaterial(Texture.BrickMap, Texture.BrickMap);
         public static MyMaterial Gold = new MyMaterial(Texture.GoldMap, Texture.GoldBumpMap);
@@ -50,5 +52,13 @@ namespace Projet_IMA.Geometries.GeometryComponents
         public MyMaterial(Couleur couleur, Texture bumpmap, float bumpintensity) :
             this(new Texture(couleur), bumpmap, bumpintensity)
         { }
+        public MyMaterial(Couleur couleur, Texture bumpmap) :
+            this(new Texture(couleur), bumpmap)
+        { }
+        public MyMaterial(Couleur couleur) :
+            this(new Texture(couleur))
+        { }
+
+
     }
 }

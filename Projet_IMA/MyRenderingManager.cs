@@ -19,8 +19,65 @@ namespace Projet_IMA
         static int largeurEcran = 960;
         static int hauteurEcran = 570;
 
+        public static string map = "everything";
+
         public static float RayonRendering = 7000;
         public static V3 eyeLocation = new V3(largeurEcran / 2, -largeurEcran, hauteurEcran / 2);
+
+
+        public static Couleur diffuseLeveLUp(List<MyGeometry> geometriesList, MyGeometry geometry, V3 point, int nRays)
+        {
+            Couleur diffus = Couleur.Cyan;
+            Couleur interm;
+
+            V3 normal = geometry.GetNormalOfPoint(point);
+            List<V3> randDir = V3.GetRandomDirectionsAlongVector(nRays, normal);
+            foreach (V3 dir in randDir)
+            {
+                if (!FindNearestIntersectionAndGeometry(geometriesList, point, dir, out V3 NearestIntersection, out MyGeometry IntersectedGeometry))
+                    continue;/*
+                if (Object.Equals(NearestIntersection, geometry))
+                    continue;
+*/
+                IntersectedGeometry.CalculateUV(NearestIntersection, out float u, out float v);
+                if (IntersectedGeometry.IsGeometryLight)
+                    interm = IntersectedGeometry.Material.ColorMap.LireCouleur(u, v);
+                else
+                    interm = IntersectedGeometry.Material.ColorMap.LireCouleur(u, v) * IntersectedGeometry.Material.LightMap.LireCouleur(u, v);
+
+                diffus += (normal * dir) * interm;
+            }
+            diffus /= nRays;
+            return diffus;
+        }
+
+
+        public static Bitmap reSetBitmapPixels(List<MyLight> lightsList, List<MyGeometry> geometriesList, Point coordZone, int LargZonePix)
+        {
+            Bitmap B = new Bitmap(LargZonePix, LargZonePix);
+            int pxmin = coordZone.X;
+            int pzmin = coordZone.Y;
+            int pxmax = coordZone.X + LargZonePix;
+            int pzmax = coordZone.Y + LargZonePix;
+
+
+            for (int px = pxmin; px < pxmax; px++)
+            {
+                for (int pz = pzmin; pz < pzmax; pz++)
+                {
+                    Couleur calculatedColor = Couleur.Blue;
+                    V3 RayonDirection = eyeLocation.NormalizedDirectionToVec(new V3(px, 0, pz));
+                    if (FindNearestIntersectionAndGeometry(geometriesList, eyeLocation, RayonDirection, out V3 NearestIntersection, out MyGeometry IntersectedGeometry))
+                    {
+                        calculatedColor = diffuseLeveLUp(geometriesList, IntersectedGeometry, NearestIntersection, 10);
+                    }
+                    B.SetPixel(px - pxmin, pzmax - pz - 1, calculatedColor.Convertion());
+                    //pzmax-pz-1 au lieu de pz-pzmin , car il semble avoir inversion de repère /z dans canvas...
+                }
+            }
+            return B;
+        }
+
 
         public static Bitmap SetBitmapPixels(List<MyLight> lightsList, List<MyGeometry> geometriesList, Point coordZone, int LargZonePix)
         {
@@ -36,18 +93,22 @@ namespace Projet_IMA
                 {
                     CalculatePixelColor(lightsList, geometriesList, px, pz, out Couleur calculatedColor);
                     B.SetPixel(px-pxmin,pzmax-pz-1,calculatedColor.Convertion());
-                    //pzmax-pz-1 au lieu de pz-pzmin , car il semble avoir inversion de repère /z dans canvas
+                    //pzmax-pz-1 au lieu de pz-pzmin , car il semble avoir inversion de repère /z dans canvas...
                 }
             }
+
             return B;
         }
 
         public static void CalculatePixelColor(List<MyLight> lightsList, List<MyGeometry> geometriesList, int px, int pz, out Couleur couleur)
         {
+            couleur = Couleur.Black;
             V3 RayonDirection = eyeLocation.NormalizedDirectionToVec(new V3(px, 0, pz));
-            FindNearestIntersectionAndGeometry(geometriesList, eyeLocation, RayonDirection, out V3 NearestIntersection, out MyGeometry IntersectedGeometry);
-            Calcul_diffuse_speculaire_bumps(geometriesList, lightsList, eyeLocation, NearestIntersection, IntersectedGeometry, out Couleur NearestCouleur);
-            couleur = NearestCouleur;
+            if (FindNearestIntersectionAndGeometry(geometriesList, eyeLocation, RayonDirection, out V3 NearestIntersection, out MyGeometry IntersectedGeometry))
+            {
+                Calcul_diffuse_speculaire_bumps(geometriesList, lightsList, eyeLocation, NearestIntersection, IntersectedGeometry, out Couleur NearestCouleur);
+                couleur = NearestCouleur;
+            }
         }
 
         public static bool FindNearestIntersectionAndGeometry(List<MyGeometry> geometriesList, V3 eyePosition, V3 rayonDirection, out V3 NearestIntersection, out MyGeometry IntersectedGeometry)
@@ -79,11 +140,9 @@ namespace Projet_IMA
             V3 normal;
             V3 point2eyesDirection;
 
-            float u, v;
-            V3 dmdu, dmdv;
             // calculate u, v, dmdu, dmdv :
-            geometry.CalculateUV(uncoloredPoint, out u, out v);
-            geometry.CalculateDifferentialUV(uncoloredPoint, out dmdu, out dmdv);
+            geometry.CalculateUV(uncoloredPoint, out float u, out float v);
+            geometry.CalculateDifferentialUV(uncoloredPoint, out V3 dmdu, out V3 dmdv);
             couleur = geometry.Material.ColorMap.LireCouleur(u, v);
             // calculate normal with bumps :
             normal = geometry.GetNormalOfPoint(uncoloredPoint);
@@ -124,8 +183,12 @@ namespace Projet_IMA
             Cinterm += geometry.Material.LightMap.LireCouleur(u, v);
             geometry.Material.LightMap.SetColorByUV(u, v, Cinterm);
             // comme si la somme des couleurs avait été factorisée :
-            couleur *= geometry.Material.LightMap.LireCouleur(u, v);
-            //couleur = geometry.Material.LightMap.LireCouleur(u, v);
+            if (map.Equals("everything"))
+                couleur *= geometry.Material.LightMap.LireCouleur(u, v);
+            else if (map.Equals("lightmaps"))
+                couleur = geometry.Material.LightMap.LireCouleur(u, v);
+            else if (map.Equals("colormaps"))
+                return;
         }
 
 
@@ -157,88 +220,83 @@ namespace Projet_IMA
             return false;
         }
 
-        public static void GenerateVirtualPointLights(List<MyLight> lightsList, List<MyGeometry> geometriesList)
-        {
-            // Laissé en pause pour l'instant, 
-            // Raytracing parait moins embetant
-            float pas = 0.1f;
-            MyLight mainLight = lightsList[0];
 
+        // Pour traiter les VPL --------------------------------------------------
+
+        public static void UpdateLightMapsWithVPL(List<MyLight> lightsList, List<MyGeometry> geometriesList, float pas, int RaysPerVPL)
+        {
+            MyRenderingManager.GenerateVirtualPointLights(lightsList, geometriesList, out List<MyLight> vpls, pas, RaysPerVPL);
+            MyRenderingManager.CalculateLightMaps(vpls, geometriesList, 0.001f);
+            MyLight.deleteLightsOfClass(lightsList, typeof(MyVirtualPointLight));
+        }
+
+        public static void GenerateVirtualPointLights(List<MyLight> lights, List<MyGeometry> geometriesList, out List<MyLight> vpls, float pas, int RaysPerVPL)
+        {
+            vpls = new List<MyLight>();
+            int imax = ProjetEleve.lights.Count;
+            for (int i = 0; i < imax; i++)
+            {
+                MyRenderingManager.GenerateVirtualPointLights(lights[i], geometriesList, out List<MyLight> vpl_, pas, RaysPerVPL);
+                vpls.AddRange(vpl_.Cast<MyVirtualPointLight>());
+            }
+            Console.WriteLine($"nb of vpls : {vpls.Count()}");
+        }
+
+        public static void GenerateVirtualPointLights(MyLight light, List<MyGeometry> geometriesList, out List<MyLight> vpls, float pas, int RaysPerVPL)
+        {
+            vpls = new List<MyLight>();
             foreach (MyGeometry geometry in geometriesList)
             {
-                for (float u = pas; u < 1; u += pas)
+                for (float u = 0.05f; u < 0.95f; u += pas)
                 {
-                    for (float v = pas; v < 1; v += pas)
+                    for (float v = 0.05f; v < 0.95f; v += pas)
                     {
                         V3 vplPosition = geometry.Get3DPoint(u, v);
-                        Couleur couleur = geometry.Material.ColorMap.LireCouleur(u, v) * 2;
-                        if (mainLight.CanIlluminatePoint(vplPosition)
-                            && !ShadowsUnderLight(geometriesList, geometry, mainLight, vplPosition, couleur, out Couleur Cocclusion))
+                        Couleur couleur = geometry.Material.ColorMap.LireCouleur(u, v);
+                        if (light.CanIlluminatePoint(vplPosition)
+                            && !ShadowsUnderLight(geometriesList, geometry, light, vplPosition, couleur, out Couleur Cocclusion))
                         {
-                            float lightIntensity = mainLight.GetIntensity() / 2;
-                            MyVirtualPointLight vpl = new MyVirtualPointLight(vplPosition, couleur, lightIntensity);
+                            float lightIntensity = light.GetIntensity()/2;
+                            vpls.Add(new MyVirtualPointLight(vplPosition, couleur, lightIntensity,geometry.GetNormalOfPoint(vplPosition),RaysPerVPL));
                         }
                     }
                 }
-
             }
-
         }
 
-        public static void CalculateLightMaps(List<MyLight> lightsList, List<MyGeometry> geometriesList)
+        public static void CalculateLightMaps(List<MyLight> lightsList, List<MyGeometry> geometriesList, float halfResolution)
         {
-            int nrays = 10000;
-
             foreach (MyLight light in lightsList)
             {
-
-                if (light.GetType() != typeof(MyVirtualPointLight))
+                if (!light.GetType().Equals(typeof(MyVirtualPointLight)))
                     continue;
 
                 Couleur CAmb = light.Couleur;
                 MyVirtualPointLight vpl = (MyVirtualPointLight)light;
-                List<V3> listofdir = vpl.GetRandomDirections(nrays);
-                foreach (V3 lightDir in listofdir)
+                foreach (V3 lightDir in vpl.RandDirections)
                 {
+                    CAmb = light.Couleur;
                     if (FindNearestIntersectionAndGeometry(geometriesList, vpl.LightPosition, lightDir, out V3 NearestIntersection, out MyGeometry IntersectedGeometry))
+                        //&& IntersectedGeometry.GetNormalOfPoint(NearestIntersection)*lightDir>0)
                     {
                         IntersectedGeometry.CalculateUV(NearestIntersection, out float u, out float v);
-                        IntersectedGeometry.Material.LightMap.SetColorByUV(u, v, light.Couleur);
+                        Texture lightmap = IntersectedGeometry.Material.LightMap;
+                        CAmb += lightmap.LireCouleur(u, v); CAmb.check();
+                        IntersectedGeometry.Material.LightMap.SetColorByUVzone(u-halfResolution, u+halfResolution, v-halfResolution, v+halfResolution, CAmb);
+                        //Console.WriteLine($"Dans CalculLM lightmap with u={u} , v={v} , Color = ({CAmb.R};{CAmb.V};{CAmb.B})");
                     }
                 }
             }
         }
 
-        public static List<MyLight> RemoveVirtualPointLights(List<MyLight> lightsList)
-        {
-            List<MyLight> lightListWithoutVPL = new List<MyLight>();
-
-            foreach (MyLight light in lightsList)
-            {
-                if (light.GetType() != typeof(MyVirtualPointLight))
-                {
-                    lightListWithoutVPL.Add(light);
-                    continue;
-                }
-            }
-            return lightListWithoutVPL;
-        }
-
-
 
         // Pour le Draw en séquentiel --------------------------------------------------
+
 
         public static void Draw(List<MyLight> lightsList, List<MyGeometry> geometriesList)
         {
             int nbpx = 1000; // 910; 
             int nbpz = 600; // 540;
-
-            /*
-                        // Test infructueux avec les VPL
-                        MyRenderingManager.GenerateVirtualPointLights(lightsList, geometriesList);
-                        MyRenderingManager.CalculateLightMaps(lightsList, geometriesList);
-                        lightsList = MyRenderingManager.RemoveVirtualPointLights(lightsList);
-            */
 
             for (int px = 0; px < nbpx; px++)
             {
