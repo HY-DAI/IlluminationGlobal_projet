@@ -107,14 +107,14 @@ namespace Projet_IMA.Geometries
         }
 
 
-        public override bool RaycastingIntersection(V3 RayonOrigine, V3 RayonDirection, out V3 intersection)
+        public override bool RaycastingIntersection(V3 rayonOrigine, V3 rayonDirection, out V3 intersection)
         {
-            intersection = RayonOrigine;
             bool intersectionExists = false;
+            intersection = rayonOrigine; // peu importe au début
 
-            float A = RayonDirection * RayonDirection;
-            float B = 2 * (RayonOrigine - CentreSphere) * RayonDirection;
-            float C = (RayonOrigine - CentreSphere) * (RayonOrigine - CentreSphere) - Rayon * Rayon;
+            float A = rayonDirection * rayonDirection;
+            float B = 2 * (rayonOrigine - CentreSphere) * rayonDirection;
+            float C = (rayonOrigine - CentreSphere) * (rayonOrigine - CentreSphere) - Rayon * Rayon;
 
             float D = B * B - 4 * A * C;
 
@@ -124,18 +124,18 @@ namespace Projet_IMA.Geometries
                 float t2 = (-B + IMA.Sqrtf(D)) / (2 * A);
                 if (t1 > 0 && t2 > 0)
                 {
-                    intersection = RayonOrigine + t1 * RayonDirection;
+                    intersection = rayonOrigine + t1 * rayonDirection;
                     intersectionExists = true;
                 }
                 else if (t1 < 0 || t2 > 0)
                 {
-                    intersection = RayonOrigine + t2 * RayonDirection;
+                    intersection = rayonOrigine + t2 * rayonDirection;
                     intersectionExists = true;
                 }
             }
             else if (D == 0) {
                 float t = -B / (2 * A);
-                intersection = RayonOrigine + t * RayonDirection;
+                intersection = rayonOrigine + t * rayonDirection;
                 intersectionExists = true;
             }
 

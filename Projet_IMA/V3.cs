@@ -149,7 +149,7 @@ namespace Projet_IMA
         {
             float x, y, z;
             float theta = 2 * IMA.PI * IMA.RandP(1.0f);
-            float phi = IMA.Cosf(2 * IMA.RandP(1.0f) - 1.0f);
+            float phi = IMA.Acosf(2 * IMA.RandP(1.0f) - 1.0f);
             x = IMA.Cosf(theta) * IMA.Sinf(phi);
             y = IMA.Sinf(theta) * IMA.Sinf(phi);
             z = IMA.Cosf(phi);
@@ -161,7 +161,9 @@ namespace Projet_IMA
             List<V3> listofdir = new List<V3>();
             for (int i = 0; i < n; i++)
             {
-                listofdir.Add(GetRandomDirection());
+                V3 dir = GetRandomDirection();
+                dir.Normalize();
+                listofdir.Add(dir);
             }
             return listofdir;
         }
@@ -182,6 +184,7 @@ namespace Projet_IMA
                     nb++;
                 }
             }
+            //Console.WriteLine($"list size = {returnlist.Count()}");
             return returnlist;
         }
 
