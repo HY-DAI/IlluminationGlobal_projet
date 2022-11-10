@@ -11,7 +11,6 @@ namespace Projet_IMA.Geometries
         public V3 CentreSphere;
         public float Rayon;
 
-
         //---------------------------------------
         // Constructeurs :
         //---------------------------------------
@@ -77,7 +76,11 @@ namespace Projet_IMA.Geometries
             return new V3(x3D, y3D, z3D);
         }
 
-
+        public bool containsPoint(V3 point)
+        {
+            float distFromCenter = V3.distance(point, CentreSphere);
+            return IMA.Abs(distFromCenter - Rayon) < 0.001f;
+        }
 
         public override V3 GetNormalOfPoint(V3 point)
         {
@@ -112,6 +115,9 @@ namespace Projet_IMA.Geometries
             bool intersectionExists = false;
             intersection = rayonOrigine; // peu importe au début
 
+            if (this.containsPoint(rayonOrigine))
+                return false;
+
             float A = rayonDirection * rayonDirection;
             float B = 2 * (rayonOrigine - CentreSphere) * rayonDirection;
             float C = (rayonOrigine - CentreSphere) * (rayonOrigine - CentreSphere) - Rayon * Rayon;
@@ -139,7 +145,7 @@ namespace Projet_IMA.Geometries
                 intersectionExists = true;
             }
 
-            return intersectionExists;
+            return intersectionExists ;
         }
     }
 }

@@ -92,6 +92,16 @@ namespace Projet_IMA.Geometries
             return normal;
         }
 
+        public bool containsPoint(V3 point)
+        {
+            CalculateUV(point, out float u, out float v);
+            if ((0 <= u && u <= 1) && (0 <= v && v <= 1))
+                return true;
+
+            return false;
+        }
+
+
         public override void CalculateUV(V3 point, out float u, out float v)
         {
             V3 n = GetNormalOfPoint(Origine);
@@ -109,17 +119,11 @@ namespace Projet_IMA.Geometries
 
         public override bool RaycastingIntersection(V3 RayonOrigine, V3 RayonDirection, out V3 intersection)
         {
-            bool intersectionExists = false;
-
             V3 n = GetNormalOfPoint(Origine);
             float t = (Origine - RayonOrigine) * n / (RayonDirection * n);
             intersection = RayonOrigine + t * RayonDirection;
 
-            CalculateUV(intersection, out float u, out float v);
-            if ((0 <= u && u <= 1) && (0 <= v && v <= 1))
-                intersectionExists = true;
-
-            return t>0 && intersectionExists;
+            return t>0 && containsPoint(intersection);
         }
     }
 }

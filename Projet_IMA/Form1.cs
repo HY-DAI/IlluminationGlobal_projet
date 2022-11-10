@@ -10,6 +10,7 @@ using System.Drawing.Imaging;
 using System.Threading;
 using System.Collections.Concurrent;
 using Projet_IMA.Lights;
+using Projet_IMA.Geometries;
 
 namespace Projet_IMA
 {
@@ -40,25 +41,11 @@ namespace Projet_IMA
         public void PictureBoxInvalidate()  { pictureBox1.Invalidate(); }
         public void PictureBoxRefresh()     { pictureBox1.Refresh();    }
 
-/*
-        // Séquentiel -----------------------------------------------------
-        private void button1_Click(object sender, EventArgs e)
-        {
-            BitmapEcran.RefreshScreen(new Couleur(0.2f, 0.2f, 0.2f));
-            ProjetEleve.Go();
-            BitmapEcran.Show();          
-        }
-*/
-
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-
-        }
+        {    }
 
         private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
+        {    }
 
         // Multithreading -------------------------------------------------------
 
@@ -74,26 +61,21 @@ namespace Projet_IMA
                 for (int y = 0; y < HautAff; y += LargZonePix)
                     JobList.Add(new Point(x, y));
 
-            //JobList.Add(new Point(pictureBox1.Width/2, pictureBox1.Height/2));
-
             // crée et lance le pool de threads
             canvas.FillRectangle(Brushes.Gray, 0, 0, 2000, 2000);
-            for (int i = 0; i < 1; i++)  // 4: nb de threads
+            for (int i = 0; i < 4; i++)  // 4: nb de threads
             {
                 int idThread = i; // capture correctement la valeur de i pour le délégué ci-dessous
                 Thread T = new Thread(delegate () { FntThread(idThread); });
                 LThreads.Add(T);
                 T.Start();        // demarre le thread enfant
             }
-
-
         }
 
         delegate void MonDelegue(Point P, Bitmap B);
 
         // fonction appelée dans le thread principal suite à l'envoi d'un évènement 
         // par un thread enfant grâce à la méthode invoke
-
         private void DrawInMainThread(Point P, Bitmap B)
         { 
             // pour corriger l'inversion de repère dans canevas :
@@ -103,8 +85,6 @@ namespace Projet_IMA
 
         // methode déclenchée par chaque thread
         // le code ci-dessous s'exécute dans les threads enfants
-
-
         private void FntThread(int idThread)
         {
             //Brush MaCouleur = LBrushes[idThread];
@@ -116,7 +96,7 @@ namespace Projet_IMA
             while (JobList.TryTake(out CoordZone))
             {
                 // crée un bitmap local correspondant à la zone à dessiner
-                Bitmap B = MyRenderingManager.SetBitmapPixels(ProjetEleve.lights, ProjetEleve.geometries, CoordZone, LargZonePix);
+                Bitmap B = MyRenderingManager.SetBitmapPixels(MyLight.LightsList, MyGeometry.GeometriesList, CoordZone, LargZonePix);
                 Graphics G = Graphics.FromImage(B);
 
                 // renvoi les infos suffisantes dans un évènement pour que
@@ -126,6 +106,16 @@ namespace Projet_IMA
             }
         }
 
+
+        /*
+                // Séquentiel -----------------------------------------------------
+                private void button1_Click(object sender, EventArgs e)
+                {
+                    BitmapEcran.RefreshScreen(new Couleur(0.2f, 0.2f, 0.2f));
+                    ProjetEleve.Go();
+                    BitmapEcran.Show();          
+                }
+        */
 
 
     }

@@ -144,6 +144,11 @@ namespace Projet_IMA
             return u * v < 0.001;
         }
 
+        public static float distance(V3 u, V3 v)
+        {
+            return (u - v).Norm();
+        }
+
 
         public static V3 GetRandomDirection()
         {
@@ -170,19 +175,14 @@ namespace Projet_IMA
 
         public static List<V3> GetRandomDirectionsAlongVector(int n, V3 vector)
         {
-            int nb = 0;
             List<V3> returnlist = new List<V3>();
-            List<V3> listofdir = GetRandomDirections(n * 2);
+            List<V3> listofdir = GetRandomDirections(n);
             foreach (V3 dir in listofdir)
             {
-                if (nb >= n)
-                    break;
-
                 if (dir * vector > 0)
-                {
                     returnlist.Add(dir);
-                    nb++;
-                }
+                else
+                    returnlist.Add(-dir);
             }
             //Console.WriteLine($"list size = {returnlist.Count()}");
             return returnlist;

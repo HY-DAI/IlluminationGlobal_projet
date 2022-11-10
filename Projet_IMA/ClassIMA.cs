@@ -23,6 +23,7 @@ namespace Projet_IMA
         static public float RandNP(float v) { return ((float) Ran.NextDouble()-0.5f)*2*v; }
         static public float RandP(float v)  { return ((float)Ran.NextDouble() ) * v; }
 
+        static public float Abs(float x) { if (x < 0) return -x; return x; }
 
         static public void Invert_Coord_Spherique(V3 P3D, V3 sphereCenter, float r, out float u, out float v)
         {

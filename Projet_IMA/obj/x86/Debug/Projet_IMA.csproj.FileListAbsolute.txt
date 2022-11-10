@@ -24,3 +24,4 @@ D:\E5_prgms\Modelisation_Synthese_image\2022_core_proj_esiee\INF_5101C_25_daih\P
 D:\E5_prgms\Modelisation_Synthese_image\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\obj\x86\Debug\Projet_IMA.csproj.CoreCompileInputs.cache
 D:\E5_prgms\Modelisation_Synthese_image\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\obj\x86\Debug\Projet_IMA.exe
 D:\E5_prgms\Modelisation_Synthese_image\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\obj\x86\Debug\Projet_IMA.pdb
+D:\E5_prgms\Modelisation_Synthese_image\2022_core_proj_esiee\INF_5101C_25_daih\Projet_IMA\obj\x86\Debug\Projet_IMA.csproj.AssemblyReference.cache

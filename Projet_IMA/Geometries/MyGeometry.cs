@@ -43,8 +43,7 @@ namespace Projet_IMA.Geometries
 
         public V3 GetNormalWithBump(V3 normal, float u, float v, V3 dmdu, V3 dmdv)
         {
-            float dhdu, dhdv;
-            Material.BumpMap.Bump(u, v, out dhdu, out dhdv);
+            Material.BumpMap.Bump(u, v, out float dhdu, out float dhdv);
             V3 Nuv = (dmdu ^ dmdv) / (dmdu ^ dmdv).Norm();
             if (Nuv * normal < 0)
                 Nuv = -Nuv;
