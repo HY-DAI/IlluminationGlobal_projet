@@ -7,13 +7,18 @@ namespace Projet_IMA.Geometries.GeometryComponents
 {
     class MyMaterial
     {
-        public float BumpIntensity;
-        public int SpecularPower;
-
         public Texture ColorMap;
         public Texture BumpMap;
         public Texture LightMap;
-                                     
+                                  
+        public float BumpIntensity;
+        public int SpecularPower;
+
+        public float ReflexionCoeff;
+        public float RefractionCoeff;
+        public float FresnelIndex;
+
+   
 
         public static MyMaterial Brick = new MyMaterial(Texture.BrickMap, Texture.BrickMap);
         public static MyMaterial Gold = new MyMaterial(Texture.GoldMap, Texture.GoldBumpMap);
@@ -35,7 +40,11 @@ namespace Projet_IMA.Geometries.GeometryComponents
             BumpMap = bumpmap;
             BumpIntensity = bumpintensity/1000; //pour éviter d'écrire trop souvent la valeur 0.001
             SpecularPower = specularpower;
+
             LightMap = new Texture(Couleur.Black);
+            ReflexionCoeff = 0;
+            RefractionCoeff = 0;
+            FresnelIndex = 1;
         }
 
         public MyMaterial(Texture colormap, Texture bumpmap, float bumpintensity) :

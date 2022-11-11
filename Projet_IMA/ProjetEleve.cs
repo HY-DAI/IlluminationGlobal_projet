@@ -18,7 +18,7 @@ namespace Projet_IMA
             // Pour etre clean a chaque fois qu'on clique sur e bouton 
             MyLight.LightsList.Clear();
             MyGeometry.GeometriesList.Clear();
-            IMA.InitRand();
+            //IMA.InitRand();
 
             // Voir MyRenderingManager
             int largeurEcran = MyRenderingManager.largeurEcran;
@@ -54,8 +54,14 @@ namespace Projet_IMA
             MySphere Sphere2 = new MySphere(sphereCenter+offset-offsety, radius, step, new MyMaterial(Texture.GoldMap, Texture.GoldBumpMap, 2.5f,50));
             MySphere Sphere3 = new MySphere(sphereCenter+2*offset, radius, step, new MyMaterial(Texture.LeadMap, Texture.LeadBumpMap, 2.5f,50));
 
-            //Texture textureZemmour = new Texture("zemmour.jpg");
-            //MySphere Sphere4 = new MySphere(sphereCenter + new V3(radius*2, -radius*3,radius/3), radius/2, step, new MyMaterial(textureZemmour, textureZemmour, 2.5f, 50));
+            //Texture textureZemmour = new Texture("zemmour.jpg"); 
+            Texture textureZemmour = new Texture(Couleur.White); 
+            MySphere Sphere4 = new MySphere(sphereCenter + new V3(radius*2, -radius*3,radius/3), radius/2, step, new MyMaterial(textureZemmour, textureZemmour, 2.5f, 50));
+            Sphere4.Material.ReflexionCoeff = 0.2f;
+            Sphere4.Material.RefractionCoeff = 0.3f;
+            Sphere4.Material.FresnelIndex = 1.0f;
+
+            Sphere2.Material.ReflexionCoeff = 1f;
 
             //////////////////////////////////////////////////////////////////////////
             ///  Lumières
@@ -68,7 +74,7 @@ namespace Projet_IMA
 
             MyLight Light1 = new MyDirectionalLight(new V3(-1, 1, -1), Couleur.White, 0.30f);
             MyLight Light2 = new MyDirectionalLight(new V3(1, 1f, -1), Couleur.Cyan, 0.20f);
-            MyLight Light3 = new MyDirectionalLight(new V3(1, 1f, 1), Couleur.Magenta, 0.15f);
+            //MyLight Light3 = new MyDirectionalLight(new V3(1, 1f, 1), Couleur.Magenta, 0.15f);
 
             //MyRectLight RectLight = new MyRectLight(Couleur.Yellow, 0.20f, wall_rand);
             //MyConeLight ConeLight = new MyConeLight(new V3(scalex / 2, scaley / 3, scalez / 2), new V3(0, 0, 1), Couleur.Red, 0.1f, 0.65f);
@@ -85,7 +91,6 @@ namespace Projet_IMA
             ///  Prise en Compte des Virtual Point Lights
             //////////////////////////////////////////////////////////////////////////
 
-            //MyRenderingManager.map = "lightmaps";
 
             /*
                         // Les Virtual Point Lights
@@ -104,8 +109,10 @@ namespace Projet_IMA
             ///  Prise en Compte du PathTracing
             //////////////////////////////////////////////////////////////////////////
 
+            //MyRenderingManager.map = "lightmaps";
 
         }
 
     }
+
 }

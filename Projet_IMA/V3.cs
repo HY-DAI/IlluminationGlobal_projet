@@ -153,8 +153,8 @@ namespace Projet_IMA
         public static V3 GetRandomDirection()
         {
             float x, y, z;
-            float theta = 2 * IMA.PI * IMA.RandP(1.0f);
-            float phi = IMA.Acosf(2 * IMA.RandP(1.0f) - 1.0f);
+            float theta = 2 * IMA.PI * StaticRandom.Rand(1.0f);
+            float phi = IMA.Acosf(2 * StaticRandom.Rand(1.0f) - 1.0f);
             x = IMA.Cosf(theta) * IMA.Sinf(phi);
             y = IMA.Sinf(theta) * IMA.Sinf(phi);
             z = IMA.Cosf(phi);

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace Projet_IMA
 {
+
     class IMA
     {
         static public float DPI = (float) (Math.PI * 2);
@@ -21,7 +23,7 @@ namespace Projet_IMA
         static public Random Ran;
         static public void InitRand() { Ran = new Random(); }
         static public float RandNP(float v) { return ((float) Ran.NextDouble()-0.5f)*2*v; }
-        static public float RandP(float v)  { return ((float)Ran.NextDouble() ) * v; }
+        static public float RandP(float v)  { return ((float) Ran.NextDouble() ) * v; }
 
         static public float Abs(float x) { if (x < 0) return -x; return x; }
 
@@ -51,6 +53,24 @@ namespace Projet_IMA
             if (temp == 0)
                 return b;
             return pgcd(b, temp);
+        }
+    }
+
+
+    public static class StaticRandom
+    {
+        static int seed = Environment.TickCount;
+
+        static readonly ThreadLocal<Random> random = new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref seed)));
+
+        public static float Rand(float v)
+        {
+            return (float) random.Value.NextDouble() * v;
+        }
+
+        public static int Rand()
+        {
+            return random.Value.Next();
         }
     }
 }

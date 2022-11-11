@@ -92,6 +92,7 @@ namespace Projet_IMA
 
             Point CoordZone;
 
+
             // capture une zone dans la liste des zones à traiter
             while (JobList.TryTake(out CoordZone))
             {

@@ -5,9 +5,11 @@ using System.Text;
 using Projet_IMA.Geometries;
 using Projet_IMA.Lights;
 using System.Drawing;
+using System.Threading;
 
 namespace Projet_IMA
 {
+
     class MyRenderingManager
     {
 
@@ -17,7 +19,10 @@ namespace Projet_IMA
 
         public static string map = "everything";
         public static float RenderingMaxDist = 7000;
-        public static int pathTracerLevel = 2;
+        public static int pathtracingLevel = 2;
+        public static int pathtracingRays = 0;
+
+        public static int raytracingMaxSteps = 2;
 
         public static Bitmap SetBitmapPixels(List<MyLight> lightsList, List<MyGeometry> geometriesList, Point coordZone, int LargZonePix)
         {
@@ -41,7 +46,9 @@ namespace Projet_IMA
 
         public static void CalculatePixelColorNiv2(List<MyLight> lightsList, List<MyGeometry> geometriesList, int px, int pz, out Couleur couleur)
         {
-            int nRays = 10;
+            if (pathtracingLevel == 1)
+                pathtracingRays = 0;
+
             couleur = Couleur.Black;
             Couleur CDiffusNiv2 = Couleur.Black;
 
@@ -49,8 +56,9 @@ namespace Projet_IMA
             if (FindNearestIntersectionAndGeometry(geometriesList, eyeLocation, RayonDirection,
                 out V3 NearestIntersection, out MyGeometry IntersectedGeometry))
             {
+
                 V3 normal = IntersectedGeometry.GetNormalOfPoint(NearestIntersection);
-                List<V3> randDir = V3.GetRandomDirectionsAlongVector(nRays, normal);
+                List<V3> randDir = V3.GetRandomDirectionsAlongVector(pathtracingRays, normal);
                 foreach (V3 dir in randDir)
                 {
                     if (!FindNearestIntersectionAndGeometry(geometriesList, NearestIntersection, dir,
@@ -58,28 +66,16 @@ namespace Projet_IMA
                         continue;
                     }
                     ColorDependingOfMap(geometriesList, lightsList, NearestIntersection,
-                        IntersectionOfRaycast2, GeometryOfRaycast2, out Couleur CDiffSpecNiv1);
+                        IntersectionOfRaycast2, GeometryOfRaycast2, out Couleur CDiffSpecNiv1,0);
 
                     CDiffusNiv2 += (normal * dir) * CDiffSpecNiv1;
                 }
-                CDiffusNiv2 /= nRays;
+                if (pathtracingRays!=0)  CDiffusNiv2 /= pathtracingRays;
 
                 ColorDependingOfMap(geometriesList, lightsList, eyeLocation,
-                NearestIntersection, IntersectedGeometry, out Couleur CAmbDiffSpec);
+                NearestIntersection, IntersectedGeometry, out Couleur CAmbDiffSpec,0);
 
-                couleur = CDiffusNiv2+CAmbDiffSpec;
-            }
-        }
-
-        public static void CalculatePixelColor(List<MyLight> lightsList, List<MyGeometry> geometriesList, int px, int pz, out Couleur couleur)
-        {
-            couleur = Couleur.Black;
-            V3 RayonDirection = eyeLocation.NormalizedDirectionToVec(new V3(px, 0, pz));
-            if (FindNearestIntersectionAndGeometry(geometriesList, eyeLocation, RayonDirection,
-                out V3 NearestIntersection, out MyGeometry IntersectedGeometry))
-            {
-                ColorDependingOfMap(geometriesList, lightsList, eyeLocation,
-                NearestIntersection, IntersectedGeometry, out couleur);
+                couleur = CAmbDiffSpec + CDiffusNiv2;
             }
         }
 
@@ -105,45 +101,46 @@ namespace Projet_IMA
         }
 
         public static void ColorDependingOfMap(List<MyGeometry> geometriesList, List<MyLight> lightsList,
-            V3 eyeLocation, V3 uncoloredPoint, MyGeometry geometry, out Couleur couleurFinale)
+            V3 eyeLocation, V3 uncoloredPoint, MyGeometry geometry, out Couleur couleurFinale, int recursionLevel)
         {
-            ColorDependingOfMap(geometriesList, lightsList, eyeLocation, uncoloredPoint, geometry,
-                out couleurFinale, out Couleur CouleurUV, out Couleur CDiffus, out Couleur CSpeculaire);
-        }
-
-        public static void ColorDependingOfMap(List<MyGeometry> geometriesList, List<MyLight> lightsList,
-            V3 eyeLocation, V3 uncoloredPoint, MyGeometry geometry, 
-            out Couleur couleurFinale, out Couleur CouleurUV, out Couleur CDiffus, out Couleur CSpeculaire)
-        {
-            // calculate u, v, dmdu, dmdv :
+            // calculate u, v, dmdu, dmdv, colorbyUV :
             geometry.CalculateUV(uncoloredPoint, out float u, out float v);
             geometry.CalculateDifferentialUV(uncoloredPoint, out V3 dmdu, out V3 dmdv);
-            CouleurUV = geometry.Material.ColorMap.LireCouleur(u, v);
-            CDiffus = Couleur.Black; 
-            CSpeculaire = Couleur.Black;
+            Couleur CouleurUV = geometry.Material.ColorMap.LireCouleur(u, v);
+            Couleur CDiffus = Couleur.Black;
+            Couleur CSpeculaire = Couleur.Black;
             // si on veut que la couleur, ou si l'objet est source lumineuse, c bon :
             couleurFinale = CouleurUV;
             if (map.Equals("colormaps")) return;
             if (geometry.IsGeometryLight) return;
 
             // calculate normal with bumps :
-            V3 normal = geometry.GetNormalOfPoint(uncoloredPoint);
-            normal = geometry.GetNormalWithBump(normal, u, v, dmdu, dmdv);
+            V3 normalWithBump = geometry.GetNormalOfPoint(uncoloredPoint);
+            normalWithBump = geometry.GetNormalWithBump(normalWithBump, u, v, dmdu, dmdv);
             // calculate invert ray direction :
             V3 point2eyesDirection = uncoloredPoint.NormalizedDirectionToVec(eyeLocation);
 
-            Calcul_diffuse_speculaire(geometriesList,lightsList,geometry,uncoloredPoint,normal,
-                point2eyesDirection,out Couleur CAmbient, out CDiffus,out CSpeculaire);
+            // Tous les calculs de couleur... :
+            Calcul_diffuse_speculaire(geometriesList, lightsList, geometry, uncoloredPoint, normalWithBump,
+                point2eyesDirection, out Couleur CAmbient, out CDiffus, out CSpeculaire);
             Couleur Cinterm = CAmbient + CDiffus + CSpeculaire;
-/*
+
             // test avec des lightmaps pour accelerer les calculs avec vpl
             Cinterm += geometry.Material.LightMap.LireCouleur(u, v);
-            if (MyRenderingManager.pathTracerLevel < 2)
+            if (MyRenderingManager.pathtracingLevel < 2)
                 geometry.Material.LightMap.SetColorByUV(u, v, Cinterm);
-*/
+
+            // Raytracing
+            CalculRaytracingColors(geometriesList, lightsList, geometry, uncoloredPoint, -point2eyesDirection, 
+                out Couleur CReflexion, out Couleur CRefraction, recursionLevel);
+            float rho1 = geometry.Material.ReflexionCoeff;
+            float rho2 = geometry.Material.RefractionCoeff;
+            Cinterm += (-rho1 - rho2) * Cinterm;
+            Cinterm += rho1*CReflexion + rho2*CRefraction;
+
             // comme si la somme des couleurs avait été factorisée :
             if (map.Equals("everything"))
-                couleurFinale *= Cinterm; 
+                couleurFinale *= Cinterm;
             else if (map.Equals("lightmaps"))
                 couleurFinale = Cinterm;
         }
@@ -179,6 +176,9 @@ namespace Projet_IMA
                     float RpD = V3.prod_scal(reflectedLightDirection, point2eyesDirection);
                     CDiffus += CAmb * V3.prod_scal(normalOfPointWithBump, -lightDirection);
                     CSpeculaire += CAmb * (float)Math.Pow(RpD, geometry.Material.SpecularPower);
+
+                    CDiffus.check();
+                    CSpeculaire.check();
                 }
             }
         }
@@ -204,7 +204,70 @@ namespace Projet_IMA
         }
 
 
-        // Pour le Draw en séquentiel --------------------------------------------------
+        public static void CalculRaytracingColors(List<MyGeometry> geometriesList, List<MyLight> lightsList,
+            MyGeometry geometry, V3 uncoloredPoint, V3 lightDir, out Couleur CReflexion, out Couleur CRefraction, int recursionLevel)
+        {
+            CReflexion = Couleur.Black;
+            CRefraction = Couleur.Black;
+
+            if (recursionLevel == raytracingMaxSteps)
+                return;
+
+            V3 normal = geometry.GetNormalOfPoint(uncoloredPoint);
+
+            // Calculer couleur reflexion si l'indice est non nul
+            if (geometry.Material.ReflexionCoeff != 0) 
+            {
+                V3 ReflexionDir = lightDir - 2 * (lightDir*normal)*normal;
+                ReflexionDir.Normalize();
+
+                if (FindNearestIntersectionAndGeometry(geometriesList, uncoloredPoint,
+                    ReflexionDir, out V3 IntersectionReflexion, out MyGeometry GeometryOfReflexion))
+                {
+                    ColorDependingOfMap(geometriesList, lightsList, uncoloredPoint,
+                        IntersectionReflexion, GeometryOfReflexion, out CReflexion, recursionLevel+1);
+                }
+            }
+
+            // Calculer couleur refraction si l'indice est non nul
+            if (geometry.Material.RefractionCoeff != 0) 
+            {
+
+                float n = 1 / geometry.Material.FresnelIndex;
+                float cosI = V3.prod_scal(normal, -lightDir);
+                float sinT2 = n * n * (1.0f - cosI * cosI);
+                float cosT = IMA.Sqrtf(1.0f - sinT2);
+                V3 RefractionDir = n * lightDir + (n * cosI - cosT) * normal;
+
+                if (FindNearestIntersectionAndGeometry(geometriesList, uncoloredPoint,
+                    RefractionDir, out V3 IntersectionRefraction, out MyGeometry GeometryOfRefraction))
+                {
+                    ColorDependingOfMap(geometriesList, lightsList, uncoloredPoint,
+                        IntersectionRefraction, GeometryOfRefraction, out CRefraction, recursionLevel+1);
+                }
+            }
+        }
+
+        /*
+
+        // Souvenir du Calcul pour Diffus Niv 1 --------------------------------------------------
+
+
+        public static void CalculatePixelColor(List<MyLight> lightsList, List<MyGeometry> geometriesList, int px, int pz, out Couleur couleur)
+        {
+            couleur = Couleur.Black;
+            V3 RayonDirection = eyeLocation.NormalizedDirectionToVec(new V3(px, 0, pz));
+            if (FindNearestIntersectionAndGeometry(geometriesList, eyeLocation, RayonDirection,
+                out V3 NearestIntersection, out MyGeometry IntersectedGeometry))
+            {
+                ColorDependingOfMap(geometriesList, lightsList, eyeLocation,
+                NearestIntersection, IntersectedGeometry, out couleur);
+            }
+        }
+
+
+        // Souvenir du Draw en séquentiel --------------------------------------------------
+
 
         public static void Draw(List<MyLight> lightsList, List<MyGeometry> geometriesList)
         {
@@ -222,20 +285,20 @@ namespace Projet_IMA
 
         }
 
-        /*
-                public static void DrawPoints(List<V3> points, List<Couleur> couleurs)
-                {
-                    foreach (var pointcolore in points.Zip(couleurs, Tuple.Create))
-                    {
-                        V3 point = pointcolore.Item1;
-                        Couleur couleur = pointcolore.Item2;
+        public static void DrawPoints(List<V3> points, List<Couleur> couleurs)
+        {
+            foreach (var pointcolore in points.Zip(couleurs, Tuple.Create))
+            {
+                V3 point = pointcolore.Item1;
+                Couleur couleur = pointcolore.Item2;
 
-                        // projection orthographique => repère écran
-                        int x_ecran = (int)(point.x);
-                        int y_ecran = (int)(point.z);
-                        BitmapEcran.DrawPixel(x_ecran, y_ecran, couleur);
-                    }
-                }
+                // projection orthographique => repère écran
+                int x_ecran = (int)(point.x);
+                int y_ecran = (int)(point.z);
+                BitmapEcran.DrawPixel(x_ecran, y_ecran, couleur);
+            }
+        }
+        
         */
     }
 }
