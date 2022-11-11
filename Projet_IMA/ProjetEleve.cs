@@ -59,7 +59,7 @@ namespace Projet_IMA
             MySphere Sphere4 = new MySphere(sphereCenter + new V3(radius*2, -radius*3,radius/3), radius/2, step, new MyMaterial(textureZemmour, textureZemmour, 2.5f, 50));
             Sphere4.Material.ReflexionCoeff = 0.2f;
             Sphere4.Material.RefractionCoeff = 0.3f;
-            Sphere4.Material.FresnelIndex = 1.0f;
+            //Sphere4.Material.FresnelIndex = 1.0f;
 
             Sphere2.Material.ReflexionCoeff = 1f;
 

@@ -18,11 +18,16 @@ namespace Projet_IMA
         public static V3 eyeLocation = new V3(largeurEcran / 2, -largeurEcran, hauteurEcran / 2);
 
         public static string map = "everything";
-        public static float RenderingMaxDist = 7000;
-        public static int pathtracingLevel = 2;
-        public static int pathtracingRays = 0;
+        public static float renderingMaxDist = 7000;
+        public static int pathTracingLevel = 2;
+        public static int pathTracingRays = 0;
 
-        public static int raytracingMaxSteps = 2;
+        public static int rayTracingMaxSteps = 2;
+
+        public static bool softShadowingEnabled = true;
+        public static float softShadowingTilt = 0.2f;
+        public static int softShadowingRays = 10;
+
 
         public static Bitmap SetBitmapPixels(List<MyLight> lightsList, List<MyGeometry> geometriesList, Point coordZone, int LargZonePix)
         {
@@ -46,8 +51,8 @@ namespace Projet_IMA
 
         public static void CalculatePixelColorNiv2(List<MyLight> lightsList, List<MyGeometry> geometriesList, int px, int pz, out Couleur couleur)
         {
-            if (pathtracingLevel == 1)
-                pathtracingRays = 0;
+            if (pathTracingLevel == 1)
+                pathTracingRays = 0;
 
             couleur = Couleur.Black;
             Couleur CDiffusNiv2 = Couleur.Black;
@@ -58,7 +63,7 @@ namespace Projet_IMA
             {
 
                 V3 normal = IntersectedGeometry.GetNormalOfPoint(NearestIntersection);
-                List<V3> randDir = V3.GetRandomDirectionsAlongVector(pathtracingRays, normal);
+                List<V3> randDir = V3.GetRandomDirectionsAlongVector(pathTracingRays, normal);
                 foreach (V3 dir in randDir)
                 {
                     if (!FindNearestIntersectionAndGeometry(geometriesList, NearestIntersection, dir,
@@ -70,7 +75,7 @@ namespace Projet_IMA
 
                     CDiffusNiv2 += (normal * dir) * CDiffSpecNiv1;
                 }
-                if (pathtracingRays!=0)  CDiffusNiv2 /= pathtracingRays;
+                if (pathTracingRays!=0)  CDiffusNiv2 /= pathTracingRays;
 
                 ColorDependingOfMap(geometriesList, lightsList, eyeLocation,
                 NearestIntersection, IntersectedGeometry, out Couleur CAmbDiffSpec,0);
@@ -83,7 +88,7 @@ namespace Projet_IMA
             V3 rayonOrigine, V3 rayonDirection, out V3 NearestIntersection, out MyGeometry IntersectedGeometry)
         {
             bool NearIntersectionExists = false;
-            NearestIntersection = rayonOrigine + RenderingMaxDist * rayonDirection;
+            NearestIntersection = rayonOrigine + renderingMaxDist * rayonDirection;
             IntersectedGeometry = geometriesList[0];
             foreach (MyGeometry geometry in geometriesList)
             {
@@ -121,13 +126,13 @@ namespace Projet_IMA
             V3 point2eyesDirection = uncoloredPoint.NormalizedDirectionToVec(eyeLocation);
 
             // Tous les calculs de couleur... :
-            Calcul_diffuse_speculaire(geometriesList, lightsList, geometry, uncoloredPoint, normalWithBump,
+            CalculShadowDiffuseSpeculaire(geometriesList, lightsList, geometry, uncoloredPoint, normalWithBump,
                 point2eyesDirection, out Couleur CAmbient, out CDiffus, out CSpeculaire);
             Couleur Cinterm = CAmbient + CDiffus + CSpeculaire;
 
             // test avec des lightmaps pour accelerer les calculs avec vpl
             Cinterm += geometry.Material.LightMap.LireCouleur(u, v);
-            if (MyRenderingManager.pathtracingLevel < 2)
+            if (MyRenderingManager.pathTracingLevel < 2)
                 geometry.Material.LightMap.SetColorByUV(u, v, Cinterm);
 
             // Raytracing
@@ -145,7 +150,7 @@ namespace Projet_IMA
                 couleurFinale = Cinterm;
         }
 
-        private static void Calcul_diffuse_speculaire(List<MyGeometry> geometriesList, List<MyLight> lightsList,
+        private static void CalculShadowDiffuseSpeculaire(List<MyGeometry> geometriesList, List<MyLight> lightsList,
             MyGeometry geometry, V3 uncoloredPoint, V3 normalOfPointWithBump, V3 point2eyesDirection,
             out Couleur CAmbient,out Couleur CDiffus, out Couleur CSpeculaire)
         {
@@ -166,22 +171,48 @@ namespace Projet_IMA
                     CAmbient += CAmb;
                     continue;
                 }
+
+                Couleur CDiffusI = Couleur.Black;
+                Couleur CSpeculaireI = Couleur.Black;
+                V3 lightDirection = light.GetLightDirOnPoint(uncoloredPoint);
+                V3 reflectedLightDirection = lightDirection + 2 * normalOfPointWithBump * V3.prod_scal(normalOfPointWithBump, -lightDirection);
+
                 // couleur diffus et spec avec management des ombres :
                 if (!PointShadowedUnderLight(geometriesList, geometry, light, uncoloredPoint))
                 {
-                    V3 lightDirection = light.GetLightDirOnPoint(uncoloredPoint);
-                    V3 reflectedLightDirection = lightDirection + 2 * normalOfPointWithBump * V3.prod_scal(normalOfPointWithBump, -lightDirection);
-
                     // diffuse and specular management : //produit avec couleur vers la fin
                     float RpD = V3.prod_scal(reflectedLightDirection, point2eyesDirection);
-                    CDiffus += CAmb * V3.prod_scal(normalOfPointWithBump, -lightDirection);
-                    CSpeculaire += CAmb * (float)Math.Pow(RpD, geometry.Material.SpecularPower);
-
-                    CDiffus.check();
-                    CSpeculaire.check();
+                    CDiffusI += CAmb * V3.prod_scal(normalOfPointWithBump, -lightDirection);
+                    CSpeculaireI += CAmb * (float)Math.Pow(RpD, geometry.Material.SpecularPower);
                 }
+
+                if (softShadowingEnabled)
+                {
+                    lightDirection = lightDirection + softShadowingTilt * V3.GetRandomDirection();
+                    for (int i = 1; i < softShadowingRays; i++)
+                    {
+                        if (!PointShadowedUnderLight(geometriesList, geometry, light, uncoloredPoint))
+                        {
+                            // diffuse and specular management : //produit avec couleur vers la fin
+                            float RpD = V3.prod_scal(reflectedLightDirection, point2eyesDirection);
+                            CDiffusI += CAmb * V3.prod_scal(normalOfPointWithBump, -lightDirection);
+                            CSpeculaireI += CAmb * (float)Math.Pow(RpD, geometry.Material.SpecularPower);
+                        }
+                    }
+                    CDiffusI /= softShadowingRays;
+                    CSpeculaire /= softShadowingRays;
+                }                
+
+
+                CDiffus += CDiffusI;
+                CSpeculaire += CSpeculaireI;
+
+                CDiffus.check();
+                CSpeculaire.check();
             }
         }
+
+
 
 
         public static bool PointShadowedUnderLight(List<MyGeometry> geometriesList, MyGeometry geometry, MyLight light,V3 point)
@@ -191,6 +222,9 @@ namespace Projet_IMA
 
             // the point in argument should be from the raycasting 
             V3 RayonDirection = light.GetLightDirOnPoint(point);
+            if (softShadowingEnabled)
+                RayonDirection = RayonDirection + softShadowingTilt * V3.GetRandomDirection();
+
             foreach (MyGeometry geom in geometriesList)
             {
                 bool occlusion = geom.RaycastingIntersection(point, -RayonDirection, out V3 intersection);
@@ -204,13 +238,14 @@ namespace Projet_IMA
         }
 
 
+
         public static void CalculRaytracingColors(List<MyGeometry> geometriesList, List<MyLight> lightsList,
             MyGeometry geometry, V3 uncoloredPoint, V3 lightDir, out Couleur CReflexion, out Couleur CRefraction, int recursionLevel)
         {
             CReflexion = Couleur.Black;
             CRefraction = Couleur.Black;
 
-            if (recursionLevel == raytracingMaxSteps)
+            if (recursionLevel == rayTracingMaxSteps)
                 return;
 
             V3 normal = geometry.GetNormalOfPoint(uncoloredPoint);
