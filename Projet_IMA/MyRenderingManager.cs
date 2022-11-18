@@ -25,7 +25,7 @@ namespace Projet_IMA
         public static int rayTracingMaxSteps = 2;
 
         public static bool softShadowingEnabled = true;
-        public static float softShadowingTilt = 0.2f;
+        public static float softShadowingTilt = 0.1f;
         public static int softShadowingRays = 10;
 
 
@@ -172,47 +172,28 @@ namespace Projet_IMA
                     continue;
                 }
 
-                Couleur CDiffusI = Couleur.Black;
-                Couleur CSpeculaireI = Couleur.Black;
                 V3 lightDirection = light.GetLightDirOnPoint(uncoloredPoint);
                 V3 reflectedLightDirection = lightDirection + 2 * normalOfPointWithBump * V3.prod_scal(normalOfPointWithBump, -lightDirection);
-
+                
                 // couleur diffus et spec avec management des ombres :
                 if (!PointShadowedUnderLight(geometriesList, geometry, light, uncoloredPoint))
                 {
                     // diffuse and specular management : //produit avec couleur vers la fin
                     float RpD = V3.prod_scal(reflectedLightDirection, point2eyesDirection);
-                    CDiffusI += CAmb * V3.prod_scal(normalOfPointWithBump, -lightDirection);
-                    CSpeculaireI += CAmb * (float)Math.Pow(RpD, geometry.Material.SpecularPower);
+                    CDiffus += CAmb * V3.prod_scal(normalOfPointWithBump, -lightDirection);
+                    CSpeculaire += CAmb * (float)Math.Pow(RpD, geometry.Material.SpecularPower);
                 }
 
-                if (softShadowingEnabled)
-                {
-                    lightDirection = lightDirection + softShadowingTilt * V3.GetRandomDirection();
-                    for (int i = 1; i < softShadowingRays; i++)
-                    {
-                        if (!PointShadowedUnderLight(geometriesList, geometry, light, uncoloredPoint))
-                        {
-                            // diffuse and specular management : //produit avec couleur vers la fin
-                            float RpD = V3.prod_scal(reflectedLightDirection, point2eyesDirection);
-                            CDiffusI += CAmb * V3.prod_scal(normalOfPointWithBump, -lightDirection);
-                            CSpeculaireI += CAmb * (float)Math.Pow(RpD, geometry.Material.SpecularPower);
-                        }
-                    }
-                    CDiffusI /= softShadowingRays;
-                    CSpeculaire /= softShadowingRays;
-                }                
+                MyRenderingManager.softShadowColors(geometriesList, geometry, uncoloredPoint, normalOfPointWithBump, 
+                    point2eyesDirection, light, CAmb, out Couleur cdiffus, out Couleur cspec);
 
-
-                CDiffus += CDiffusI;
-                CSpeculaire += CSpeculaireI;
+                CDiffus += cdiffus;
+                CSpeculaire += cspec;
 
                 CDiffus.check();
                 CSpeculaire.check();
             }
         }
-
-
 
 
         public static bool PointShadowedUnderLight(List<MyGeometry> geometriesList, MyGeometry geometry, MyLight light,V3 point)
@@ -223,12 +204,12 @@ namespace Projet_IMA
             // the point in argument should be from the raycasting 
             V3 RayonDirection = light.GetLightDirOnPoint(point);
             if (softShadowingEnabled)
-                RayonDirection = RayonDirection + softShadowingTilt * V3.GetRandomDirection();
+                RayonDirection += softShadowingTilt * V3.GetRandomDirection();
 
             foreach (MyGeometry geom in geometriesList)
             {
                 bool occlusion = geom.RaycastingIntersection(point, -RayonDirection, out V3 intersection);
-                occlusion = occlusion && (intersection - point) * RayonDirection < 0;
+                //occlusion = occlusion && (intersection - point) * RayonDirection < 0;
                 bool ownhiddenface = geometry.GetNormalOfPoint(point) * RayonDirection > 0;
 
                 if (ownhiddenface || !Object.ReferenceEquals(geometry, geom) && occlusion)
@@ -237,6 +218,33 @@ namespace Projet_IMA
             return false;
         }
 
+        public static void softShadowColors(List<MyGeometry> geometriesList, MyGeometry geometry, V3 uncoloredPoint, V3 normalOfPointWithBump, V3 point2eyesDirection, 
+            MyLight light, Couleur CAmb, out Couleur cdiffus, out Couleur cspec)
+        {
+            cdiffus = Couleur.Black;
+            cspec = Couleur.Black;
+            if (softShadowingEnabled)
+                return;
+
+            V3 lightDirection = light.GetLightDirOnPoint(uncoloredPoint);
+            V3 reflectedLightDirection = lightDirection + 2 * normalOfPointWithBump * V3.prod_scal(normalOfPointWithBump, -lightDirection);
+
+            if (softShadowingEnabled)
+            {
+                for (int i = 0; i < softShadowingRays; i++)
+                {
+                    if (!PointShadowedUnderLight(geometriesList, geometry, light, uncoloredPoint))
+                    {
+                        //lightDirection = lightDirection + softShadowingTilt * V3.GetRandomDirection();
+                        float RpD = V3.prod_scal(reflectedLightDirection, point2eyesDirection);
+                        cdiffus += CAmb * V3.prod_scal(normalOfPointWithBump, -lightDirection);
+                        cspec += CAmb * (float)Math.Pow(RpD, geometry.Material.SpecularPower);
+                    }
+                }
+                cdiffus /= softShadowingRays;
+                cspec /= softShadowingRays;
+            }
+        }
 
 
         public static void CalculRaytracingColors(List<MyGeometry> geometriesList, List<MyLight> lightsList,

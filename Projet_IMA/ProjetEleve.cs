@@ -92,11 +92,12 @@ namespace Projet_IMA
             //////////////////////////////////////////////////////////////////////////
 
 
-            /*
-                        // Les Virtual Point Lights
-                        MyRenderingManager.map = "lightmaps";
-                        MyVPLsManager.UpdateLightMapsWithVPL(MyLight.LightsList, MyGeometry.GeometriesList, 0.01f, 100);
-            */
+
+            // Les Virtual Point Lights
+            //MyRenderingManager.map = "lightmaps";
+            //MyVPLsManager.UpdateLightMapsWithVPL(MyLight.LightsList, MyGeometry.GeometriesList, 0.01f, 100);
+            MyVPLsManager.UpdateLightMapsWithVPL(MyLight.LightsList, MyGeometry.GeometriesList, 0.5f, 10);
+
 
 
             /*
