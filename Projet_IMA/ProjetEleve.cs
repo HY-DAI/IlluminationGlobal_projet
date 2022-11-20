@@ -74,7 +74,7 @@ namespace Projet_IMA
 
             MyLight Light1 = new MyDirectionalLight(new V3(-1, 1, -1), Couleur.White, 0.30f);
             MyLight Light2 = new MyDirectionalLight(new V3(1, 1f, -1), Couleur.Cyan, 0.20f);
-            //MyLight Light3 = new MyDirectionalLight(new V3(1, 1f, 1), Couleur.Magenta, 0.15f);
+            MyLight Light3 = new MyDirectionalLight(new V3(1, 1f, 1), Couleur.Magenta, 0.15f);
 
             //MyRectLight RectLight = new MyRectLight(Couleur.Yellow, 0.20f, wall_rand);
             //MyConeLight ConeLight = new MyConeLight(new V3(scalex / 2, scaley / 3, scalez / 2), new V3(0, 0, 1), Couleur.Red, 0.1f, 0.65f);
@@ -92,25 +92,34 @@ namespace Projet_IMA
             //////////////////////////////////////////////////////////////////////////
 
 
-
-            // Les Virtual Point Lights
-            //MyRenderingManager.map = "lightmaps";
-            //MyVPLsManager.UpdateLightMapsWithVPL(MyLight.LightsList, MyGeometry.GeometriesList, 0.01f, 100);
-            MyVPLsManager.UpdateLightMapsWithVPL(MyLight.LightsList, MyGeometry.GeometriesList, 0.5f, 10);
-
-
+            /*
+                        // Les Virtual Point Lights : lightmaps pour accelerer les calculs
+                        //MyRenderingManager.map = "lightmaps";
+                        MyVPLsManager.UpdateLightMapsWithVPL(MyLight.LightsList, MyGeometry.GeometriesList, 0.01f, 10);
+            */
 
             /*
-                        // Fail 2 drole sur les Virtual Point Lights
-                        MyRenderingManager.map = "lightmaps";
-                        MyVPLsManager.GenerateVirtualPointLights(ProjetEleve.lights, ProjetEleve.geometries, out List<MyLight> vpls_all, 0.1f, 100);
+                        // Test Virtual Point Lights : Lightmaps non necessaires
+                        //MyRenderingManager.map = "lightmaps";
+                        MyVPLsManager.GenerateVirtualPointLights(MyLight.LightsList, MyGeometry.GeometriesList, out List<MyLight> vpls_all, 0.1f, 100);
             */
 
             //////////////////////////////////////////////////////////////////////////
-            ///  Prise en Compte du PathTracing
+            ///  Paramétrage du Rendering Manager
             //////////////////////////////////////////////////////////////////////////
 
-            //MyRenderingManager.map = "lightmaps";
+            // map = "everything" || "colormaps" || "lightmaps"
+            MyRenderingManager.map = "everything";
+
+            // pathTracingRays=0  <=>  modele diffus de niv1
+            MyRenderingManager.pathTracingRays = 0;
+            MyRenderingManager.rayTracingMaxSteps = 2;
+
+            // softShadowingRays=0  <=>  softShadowingEnable = false
+            MyRenderingManager.softShadowingEnabled = true;
+            MyRenderingManager.softShadowingTilt = 0.10f;
+            MyRenderingManager.softShadowingRays = 10;
+
 
         }
 

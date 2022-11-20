@@ -49,7 +49,7 @@ namespace Projet_IMA.Lights
             V3 dir = GetLightDirOnPoint(point);
             foreach (V3 vdir in RandDirections)
                 if (0.999f < dir*vdir && dir*vdir <1)
-                    if (IMA.RandP(1.0f)>0.5)
+                    if (StaticRandom.Rand(1.0f)>0.5)
                         return true;
             return false;
         }

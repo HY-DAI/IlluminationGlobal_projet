@@ -19,14 +19,13 @@ namespace Projet_IMA
 
         public static string map = "everything";
         public static float renderingMaxDist = 7000;
-        public static int pathTracingLevel = 2;
-        public static int pathTracingRays = 0;
 
+        public static int pathTracingRays = 0;
         public static int rayTracingMaxSteps = 2;
 
         public static bool softShadowingEnabled = true;
-        public static float softShadowingTilt = 0.1f;
-        public static int softShadowingRays = 10;
+        public static float softShadowingTilt = 0.15f;
+        public static int softShadowingRays = 9;
 
 
         public static Bitmap SetBitmapPixels(List<MyLight> lightsList, List<MyGeometry> geometriesList, Point coordZone, int LargZonePix)
@@ -51,9 +50,6 @@ namespace Projet_IMA
 
         public static void CalculatePixelColorNiv2(List<MyLight> lightsList, List<MyGeometry> geometriesList, int px, int pz, out Couleur couleur)
         {
-            if (pathTracingLevel == 1)
-                pathTracingRays = 0;
-
             couleur = Couleur.Black;
             Couleur CDiffusNiv2 = Couleur.Black;
 
@@ -132,7 +128,7 @@ namespace Projet_IMA
 
             // test avec des lightmaps pour accelerer les calculs avec vpl
             Cinterm += geometry.Material.LightMap.LireCouleur(u, v);
-            if (MyRenderingManager.pathTracingLevel < 2)
+            if (MyRenderingManager.pathTracingRays > 0)
                 geometry.Material.LightMap.SetColorByUV(u, v, Cinterm);
 
             // Raytracing
@@ -184,12 +180,16 @@ namespace Projet_IMA
                     CSpeculaire += CAmb * (float)Math.Pow(RpD, geometry.Material.SpecularPower);
                 }
 
-                MyRenderingManager.softShadowColors(geometriesList, geometry, uncoloredPoint, normalOfPointWithBump, 
-                    point2eyesDirection, light, CAmb, out Couleur cdiffus, out Couleur cspec);
+                // Calcul de soft shadowing
+                if (softShadowingEnabled)
+                {
+                    MyRenderingManager.softShadowColors(geometriesList, geometry, uncoloredPoint, normalOfPointWithBump,
+                    point2eyesDirection, light, CAmb, out Couleur csoftdiff, out Couleur csoftspec);
+                    CDiffus += csoftdiff;
+                    CSpeculaire += csoftspec;
+                }
 
-                CDiffus += cdiffus;
-                CSpeculaire += cspec;
-
+                // Pour éviter quelques grains de couleurs
                 CDiffus.check();
                 CSpeculaire.check();
             }
@@ -201,49 +201,61 @@ namespace Projet_IMA
             if (!light.CanShadow)
                 return false;
 
-            // the point in argument should be from the raycasting 
-            V3 RayonDirection = light.GetLightDirOnPoint(point);
-            if (softShadowingEnabled)
-                RayonDirection += softShadowingTilt * V3.GetRandomDirection();
+            // the point in argument should be from a raycasting 
+            V3 lightDirection = light.GetLightDirOnPoint(point);
+
+            if (softShadowingEnabled && softShadowingRays!=0)
+                lightDirection += softShadowingTilt * V3.GetRandomDirection();
 
             foreach (MyGeometry geom in geometriesList)
             {
-                bool occlusion = geom.RaycastingIntersection(point, -RayonDirection, out V3 intersection);
-                //occlusion = occlusion && (intersection - point) * RayonDirection < 0;
-                bool ownhiddenface = geometry.GetNormalOfPoint(point) * RayonDirection > 0;
-
-                if (ownhiddenface || !Object.ReferenceEquals(geometry, geom) && occlusion)
+                if (PointOccludedByGeometry(point,geometry,geom,lightDirection))
                     return true;
             }
             return false;
         }
 
-        public static void softShadowColors(List<MyGeometry> geometriesList, MyGeometry geometry, V3 uncoloredPoint, V3 normalOfPointWithBump, V3 point2eyesDirection, 
+        public static bool PointOccludedByGeometry(V3 point, MyGeometry geometryOfPoint, MyGeometry geometry, V3 lightDirection)
+        {
+            bool occlusion = geometry.RaycastingIntersection(point, -lightDirection, out V3 intersection);
+            //occlusion = occlusion && (intersection - point) * directionPointVue < 0;
+            bool ownhiddenface = geometryOfPoint.GetNormalOfPoint(point) * lightDirection > 0;
+
+            return (ownhiddenface || !Object.ReferenceEquals(geometryOfPoint, geometry) && occlusion);
+        }
+
+        public static void softShadowColors(List<MyGeometry> geometriesList, MyGeometry geometry, V3 point, V3 normalOfPointWithBump, V3 point2eyesDirection,
             MyLight light, Couleur CAmb, out Couleur cdiffus, out Couleur cspec)
         {
             cdiffus = Couleur.Black;
             cspec = Couleur.Black;
-            if (softShadowingEnabled)
-                return;
 
-            V3 lightDirection = light.GetLightDirOnPoint(uncoloredPoint);
-            V3 reflectedLightDirection = lightDirection + 2 * normalOfPointWithBump * V3.prod_scal(normalOfPointWithBump, -lightDirection);
+            if (!softShadowingEnabled) return;
+            if (softShadowingRays == 0) return;
 
-            if (softShadowingEnabled)
+            V3 lightDirection, rayonDirection, reflectedLightDirection;
+            lightDirection = light.GetLightDirOnPoint(point);
+
+            int lightenedTimes = 0;
+            for (int i = 0; i < softShadowingRays; i++)
             {
-                for (int i = 0; i < softShadowingRays; i++)
+                if (!PointShadowedUnderLight(geometriesList, geometry, light, point))
                 {
-                    if (!PointShadowedUnderLight(geometriesList, geometry, light, uncoloredPoint))
-                    {
-                        //lightDirection = lightDirection + softShadowingTilt * V3.GetRandomDirection();
-                        float RpD = V3.prod_scal(reflectedLightDirection, point2eyesDirection);
-                        cdiffus += CAmb * V3.prod_scal(normalOfPointWithBump, -lightDirection);
-                        cspec += CAmb * (float)Math.Pow(RpD, geometry.Material.SpecularPower);
-                    }
-                }
-                cdiffus /= softShadowingRays;
-                cspec /= softShadowingRays;
+                    lightenedTimes++;
+                    // calcul du rayon lumineux tilte
+                    rayonDirection = lightDirection*2 + softShadowingTilt * V3.GetRandomDirection();
+                    rayonDirection.Normalize();
+                    // calcul du rayon reflechi
+                    float minusNpL = V3.prod_scal(normalOfPointWithBump, -rayonDirection);
+                    reflectedLightDirection = rayonDirection + 2 * normalOfPointWithBump * minusNpL;
+                    // Les formules de diffus et speculaire
+                    float RpD = V3.prod_scal(reflectedLightDirection, point2eyesDirection);
+                    cdiffus += CAmb * V3.prod_scal(normalOfPointWithBump, -rayonDirection);
+                    cspec += CAmb * (float)Math.Pow(RpD, geometry.Material.SpecularPower);
+                }                
             }
+            cdiffus /= softShadowingRays;
+            cspec /= softShadowingRays;
         }
 
 
@@ -291,8 +303,8 @@ namespace Projet_IMA
             }
         }
 
-        /*
 
+        /*
         // Souvenir du Calcul pour Diffus Niv 1 --------------------------------------------------
 
 
@@ -327,21 +339,6 @@ namespace Projet_IMA
             }
 
         }
-
-        public static void DrawPoints(List<V3> points, List<Couleur> couleurs)
-        {
-            foreach (var pointcolore in points.Zip(couleurs, Tuple.Create))
-            {
-                V3 point = pointcolore.Item1;
-                Couleur couleur = pointcolore.Item2;
-
-                // projection orthographique => repère écran
-                int x_ecran = (int)(point.x);
-                int y_ecran = (int)(point.z);
-                BitmapEcran.DrawPixel(x_ecran, y_ecran, couleur);
-            }
-        }
-        
         */
     }
 }
